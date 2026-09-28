@@ -29,7 +29,7 @@ function collectAnswerKey(lines: string[]) {
 
   for (const rawLine of lines) {
     const line = cleanLine(rawLine);
-    if (/^gabarito\b/i.test(line)) inKey = true;
+    if (/^(?:gabarito|respostas?)\b/i.test(line)) inKey = true;
     if (!inKey) continue;
 
     for (const match of line.matchAll(/(?:^|\s|[;,|])(?:quest[aã]o\s*)?(\d{1,4})\s*[-.):]?\s*\(?([A-Fa-f])\)?(?=\s|$|[;,|])/gi)) {
