@@ -36,12 +36,12 @@ function Questoes() {
   const save = async (e: React.FormEvent) => {
     e.preventDefault();
     const options = form.options.map((o) => o.trim());
-    if (options.some((o) => !o)) return toast.error("Preencha todas as alternativas.");
+    if (options.some((o) => !o)) { toast.error("Preencha todas as alternativas."); return; }
     const payload = { ...form, options, subject: form.subject.trim(), topic: form.topic.trim() };
     const { error } = editing
       ? await supabase.from("questions").update(payload).eq("id", editing)
       : await supabase.from("questions").insert(payload);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(editing ? "Questão atualizada" : "Questão cadastrada");
     setForm({ ...empty, subject: form.subject, topic: form.topic });
     setEditing(null);
@@ -51,7 +51,7 @@ function Questoes() {
   const remove = async (id: string) => {
     if (!confirm("Excluir esta questão?")) return;
     const { error } = await supabase.from("questions").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     qc.invalidateQueries({ queryKey: ["questions"] });
   };
 

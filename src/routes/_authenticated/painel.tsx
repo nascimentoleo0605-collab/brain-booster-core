@@ -46,7 +46,7 @@ function Painel() {
     queryKey: ["attempts", user.id, period],
     queryFn: async () => {
       let q = supabase.from("attempts").select("is_correct, created_at, questions(subject, topic)").eq("user_id", user.id).order("created_at");
-      const days = PERIODS[period].days;
+      const days = PERIODS[period]?.days;
       if (days) q = q.gte("created_at", new Date(Date.now() - days * 864e5).toISOString());
       const { data, error } = await q;
       if (error) throw error;
