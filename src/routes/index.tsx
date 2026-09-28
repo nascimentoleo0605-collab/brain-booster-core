@@ -5,10 +5,10 @@ import { BookOpen, BarChart3, Layers } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Caderno de Questões — estude e acompanhe seu desempenho" },
-      { name: "description", content: "Banco de questões de múltipla escolha por matéria e assunto, com gráficos de desempenho individuais." },
-      { property: "og:title", content: "Caderno de Questões" },
-      { property: "og:description", content: "Banco de questões com gráficos de desempenho individuais." },
+      { title: "Caderno de Questões — pratique, revise e evolua" },
+      { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+      { property: "og:title", content: "Caderno de Questões — pratique, revise e evolua" },
+      { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

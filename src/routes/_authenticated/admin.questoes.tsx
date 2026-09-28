@@ -14,10 +14,10 @@ import { PdfImport } from "@/components/PdfImport";
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
   head: () => ({ meta: [
-    { title: "Questões — Caderno" },
-    { name: "description", content: "Cadastre e importe questões de múltipla escolha por CSV ou PDF." },
-    { property: "og:title", content: "Questões — Caderno" },
-    { property: "og:description", content: "Cadastre e importe questões de múltipla escolha por CSV ou PDF." },
+    { title: "Questões | Caderno de Questões — pratique, revise e evolua" },
+    { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+    { property: "og:title", content: "Questões | Caderno de Questões — pratique, revise e evolua" },
+    { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
   ] }),

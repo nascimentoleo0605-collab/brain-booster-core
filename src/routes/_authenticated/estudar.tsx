@@ -9,8 +9,8 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
   head: () => ({ meta: [
-    { title: "Estudar — Caderno" }, { name: "description", content: "Resolva questões por matéria e assunto." },
-    { property: "og:title", content: "Estudar — Caderno" }, { property: "og:description", content: "Resolva questões por matéria e assunto." },
+    { title: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+    { property: "og:title", content: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
   component: Estudar,
