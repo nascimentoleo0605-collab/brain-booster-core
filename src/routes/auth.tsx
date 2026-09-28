@@ -36,7 +36,7 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/painel" });
+      if (data.user) navigate({ to: "/painel", replace: true });
     });
     checkSetup().then((r) => setMode(r.needsSetup ? "setup" : "login")).catch(() => setMode("login"));
   }, []);
@@ -51,7 +51,7 @@ function AuthPage() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new Error("E-mail ou senha incorretos.");
-      navigate({ to: "/painel" });
+      navigate({ to: "/painel", replace: true });
     } catch (err) {
       toast.error((err as Error).message);
     } finally {

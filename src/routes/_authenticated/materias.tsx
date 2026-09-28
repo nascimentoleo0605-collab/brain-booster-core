@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/materias")({
 function Materias() {
   const { user } = Route.useRouteContext();
   const { data: questions = [], error: questionsError } = useQuery({
-    queryKey: ["questions"],
+    queryKey: ["questions", "subjects"],
     queryFn: async () => {
       const { data, error } = await supabase.from("questions").select("id, subject, topic");
       if (error) throw error;
@@ -51,7 +51,9 @@ function Materias() {
         <p className="mt-1 text-sm text-muted-foreground">{correct} {correct === 1 ? "acerto" : "acertos"} · {answered.length} {answered.length === 1 ? "resolvida" : "resolvidas"} · {own.length} questões</p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-chart-2" style={{ width: `${percentage}%` }} /></div>
         <div className="mt-4 flex flex-wrap gap-1">{[...new Set(own.map((question) => question.topic).filter(Boolean))].map((topic) => <span key={topic} className="rounded border px-2 py-1 text-xs text-muted-foreground">{topic}</span>)}</div>
-        <Button asChild variant="outline" size="sm" className="mt-4"><Link to="/estudar">Estudar</Link></Button>
+        <Button asChild variant="outline" size="sm" className="mt-4">
+          <Link to="/estudar" search={{ subject }}>Estudar</Link>
+        </Button>
       </div>;
     })}</div>
   </div>;
