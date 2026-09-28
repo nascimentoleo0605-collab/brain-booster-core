@@ -42,6 +42,7 @@ function Estudar() {
   const [answered, setAnswered] = useState(false);
   const [onlyWrong, setOnlyWrong] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [reviewingQuestionId, setReviewingQuestionId] = useState<string | null>(null);
   const { data: attempts = [] } = useQuery({
     queryKey: ["study-attempts", user.id],
     queryFn: async () => {
@@ -60,21 +61,23 @@ function Estudar() {
     () => [...new Set(questions.filter((q) => subject === ALL || q.subject === subject).map((q) => q.topic).filter(Boolean))].sort(),
     [questions, subject],
   );
-  const filtered = questions.filter((q) => (subject === ALL || q.subject === subject) && (topic === ALL || q.topic === topic) && (!onlyWrong || latest.get(q.id)?.is_correct === false));
+  const filtered = questions.filter((q) => (subject === ALL || q.subject === subject) && (topic === ALL || q.topic === topic) && (!onlyWrong || latest.get(q.id)?.is_correct === false || (answered && q.id === reviewingQuestionId)));
   const q = filtered[idx % Math.max(filtered.length, 1)];
   const last = q ? latest.get(q.id) : undefined;
 
-  const reset = () => { setSelected(null); setAnswered(false); };
+  const reset = () => { setSelected(null); setAnswered(false); setReviewingQuestionId(null); };
   const answer = async () => {
     if (selected === null || !q) return;
     setSaving(true);
     const { error } = await supabase.from("attempts").insert({ question_id: q.id, selected_index: selected, is_correct: false });
     setSaving(false);
     if (error) { toast.error("Não foi possível salvar sua resposta."); return; }
+    setReviewingQuestionId(q.id);
     setAnswered(true);
     qc.invalidateQueries({ queryKey: ["attempts"] });
     qc.invalidateQueries({ queryKey: ["study-attempts", user.id] });
     qc.invalidateQueries({ queryKey: ["ranking"] });
+    qc.invalidateQueries({ queryKey: ["subject-attempts", user.id] });
   };
 
   return (
@@ -155,7 +158,7 @@ function Estudar() {
             {!answered ? (
                <Button onClick={answer} disabled={selected === null || saving}>{saving ? "Salvando…" : "Responder"}</Button>
             ) : (
-              <Button onClick={() => { setIdx((i) => i + 1); reset(); }}>Próxima</Button>
+               <Button onClick={() => { setIdx((i) => i + 1); reset(); }}>Próxima</Button>
             )}
           </div>
         </div>
