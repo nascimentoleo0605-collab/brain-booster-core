@@ -46,7 +46,7 @@ function Layout() {
         <aside className="fixed inset-x-0 bottom-0 z-30 flex h-16 border-t border-sidebar-border bg-sidebar md:static md:h-auto md:w-56 md:flex-col md:border-r md:border-t-0">
           <Link to="/painel" className="hidden h-20 items-center gap-3 border-b border-sidebar-border px-5 font-serif text-lg font-semibold md:flex">
             <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span>
-            Caderno
+             MEUCBFPM
           </Link>
            <nav className="flex flex-1 items-center justify-around gap-1 overflow-x-auto p-2 md:block md:space-y-1 md:p-3">
              <Link to="/painel" aria-label="Desempenho" title="Desempenho" className={link} activeProps={active}><BarChart3 /> <span className="hidden md:inline">Desempenho</span></Link>

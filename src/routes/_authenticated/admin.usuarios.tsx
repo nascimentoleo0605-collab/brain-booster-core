@@ -15,8 +15,8 @@ export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   staticData: { sitemap: false },
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
   head: () => ({ meta: [
-    { title: "Usuários | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Administre as contas dos estudantes." },
-    { property: "og:title", content: "Usuários | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Administre as contas dos estudantes." },
+    { title: "Usuários | MEUCBFPM" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Administre as contas dos estudantes." },
+    { property: "og:title", content: "Usuários | MEUCBFPM" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Administre as contas dos estudantes." },
     { name: "robots", content: "noindex, nofollow" },
   ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/admin/usuarios" }] }),
   component: Usuarios,
