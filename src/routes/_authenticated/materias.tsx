@@ -48,7 +48,7 @@ function Materias() {
       const percentage = answered.length ? Math.round(correct / answered.length * 100) : 0;
       return <div key={subject} className="rounded-lg border bg-card p-5">
         <div className="flex items-start justify-between gap-4"><h2 className="min-w-0 break-words font-serif text-lg font-semibold">{subject}</h2><strong className="text-xl tabular-nums text-chart-2">{answered.length ? `${percentage}%` : "—"}</strong></div>
-        <p className="mt-1 text-sm text-muted-foreground">{correct} acertos · {answered.length} resolvidas · {own.length} questões</p>
+        <p className="mt-1 text-sm text-muted-foreground">{correct} {correct === 1 ? "acerto" : "acertos"} · {answered.length} {answered.length === 1 ? "resolvida" : "resolvidas"} · {own.length} questões</p>
         <div className="mt-4 h-2 overflow-hidden rounded-full bg-muted"><div className="h-full bg-chart-2" style={{ width: `${percentage}%` }} /></div>
         <div className="mt-4 flex flex-wrap gap-1">{[...new Set(own.map((question) => question.topic).filter(Boolean))].map((topic) => <span key={topic} className="rounded border px-2 py-1 text-xs text-muted-foreground">{topic}</span>)}</div>
         <Button asChild variant="outline" size="sm" className="mt-4"><Link to="/estudar">Estudar</Link></Button>

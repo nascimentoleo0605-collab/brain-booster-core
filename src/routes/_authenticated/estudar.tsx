@@ -103,7 +103,7 @@ function Estudar() {
 
       <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground" aria-label={`Sequência de ${streak} acertos`}>
         <Flame className={streak > 3 ? "text-chart-3" : ""} size={18} />
-        <span>{streak > 3 ? `Sequência flamejante · ${streak}` : `${streak} acertos seguidos`}</span>
+             <span>{streak > 3 ? `Sequência flamejante · ${streak}` : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}</span>
       </div>
 
       {isLoading ? (
@@ -158,7 +158,7 @@ function Estudar() {
             {!answered ? (
                <Button onClick={answer} disabled={selected === null || saving}>{saving ? "Salvando…" : "Responder"}</Button>
             ) : (
-               <Button onClick={() => { setIdx((i) => i + 1); reset(); }}>Próxima</Button>
+               <Button onClick={() => { if (!onlyWrong || selected !== q.correct_index) setIdx((i) => i + 1); reset(); }}>Próxima</Button>
             )}
           </div>
         </div>

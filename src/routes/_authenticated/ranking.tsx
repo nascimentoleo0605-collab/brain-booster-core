@@ -28,7 +28,7 @@ function Ranking() {
     <div className="divide-y rounded-lg border">{data.map((entry, index) => <div key={entry.id} className={`flex items-center gap-4 px-4 py-4 ${entry.id === user.id ? "bg-primary/10" : ""}`}>
       <span className="w-8 text-center font-serif text-lg text-muted-foreground">{index + 1}</span>
       <span className="min-w-0 flex-1 truncate">{entry.name}{entry.id === user.id && <span className="ml-2 text-xs text-muted-foreground">Você</span>}</span>
-      <strong className="tabular-nums text-chart-2">{entry.correct} acertos</strong>
+      <strong className="tabular-nums text-chart-2">{entry.correct} {entry.correct === 1 ? "acerto" : "acertos"}</strong>
     </div>)}</div>
   </div>;
 }
