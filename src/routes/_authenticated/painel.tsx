@@ -9,7 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/painel")({
-  head: () => ({ meta: [{ title: "Desempenho — Caderno" }, { name: "description", content: "Seu desempenho por matéria e assunto." }] }),
+  head: () => ({ meta: [
+    { title: "Desempenho — Caderno" }, { name: "description", content: "Seu desempenho por matéria e assunto." },
+    { property: "og:title", content: "Desempenho — Caderno" }, { property: "og:description", content: "Seu desempenho por matéria e assunto." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: Painel,
 });
 

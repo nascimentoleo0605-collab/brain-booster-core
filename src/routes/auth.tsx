@@ -16,6 +16,8 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Acesse sua conta para estudar e acompanhar seu desempenho." },
       { property: "og:title", content: "Entrar — Caderno de Questões" },
       { property: "og:description", content: "Acesse sua conta para estudar e acompanhar seu desempenho." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: AuthPage,

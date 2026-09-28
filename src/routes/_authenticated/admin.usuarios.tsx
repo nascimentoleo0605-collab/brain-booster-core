@@ -13,7 +13,11 @@ import { KeyRound, Trash2 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/admin/usuarios")({
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
-  head: () => ({ meta: [{ title: "Usuários — Caderno" }, { name: "description", content: "Cadastre e gerencie contas." }] }),
+  head: () => ({ meta: [
+    { title: "Usuários — Caderno" }, { name: "description", content: "Cadastre e gerencie contas de estudantes." },
+    { property: "og:title", content: "Usuários — Caderno" }, { property: "og:description", content: "Cadastre e gerencie contas de estudantes." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: Usuarios,
 });
 

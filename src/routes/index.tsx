@@ -9,6 +9,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Banco de questões de múltipla escolha por matéria e assunto, com gráficos de desempenho individuais." },
       { property: "og:title", content: "Caderno de Questões" },
       { property: "og:description", content: "Banco de questões com gráficos de desempenho individuais." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: Index,
@@ -40,7 +42,7 @@ function Index() {
             [BookOpen, "Correção na hora", "Veja o gabarito e o comentário."],
             [BarChart3, "Seu desempenho", "Gráfico de acertos por matéria."],
           ].map(([Icon, t, d]: any) => (
-            <div key={t} className="rounded-xl border bg-card p-6">
+            <div key={t} className="rounded-lg border bg-card p-6">
               <Icon className="h-5 w-5 text-primary" />
               <h3 className="mt-3 font-serif text-lg">{t}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{d}</p>
