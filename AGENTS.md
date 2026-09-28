@@ -13,3 +13,4 @@
 - Only admins create accounts (public signup disabled); account creation runs in server functions in src/lib/admin.functions.ts — needs privileged access.
 - First admin is created via /auth setup form, only while no admin exists.
 - Question options stored as a JSON array of strings (2–6) so formats can grow later.
+- PDF files are parsed locally in the admin browser and require review before database insertion, keeping source documents private.
