@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users } from "lucide-react";
+import { BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   staticData: { sitemap: "exclude-subtree" },
@@ -40,9 +40,11 @@ function Layout() {
             <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span>
             Caderno
           </Link>
-          <nav className="grid flex-1 grid-cols-4 gap-1 p-2 md:block md:space-y-1 md:p-3">
+           <nav className="flex flex-1 items-center justify-around gap-1 overflow-x-auto p-2 md:block md:space-y-1 md:p-3">
             <Link to="/painel" className={link} activeProps={active}><BarChart3 /> <span>Desempenho</span></Link>
             <Link to="/estudar" className={link} activeProps={active}><GraduationCap /> <span>Estudar</span></Link>
+             <Link to="/materias" className={link} activeProps={active}><LayoutGrid /> <span>Matérias</span></Link>
+             <Link to="/ranking" className={link} activeProps={active}><Trophy /> <span>Ranking</span></Link>
             {isAdmin && (
               <>
                 <Link to="/admin/questoes" className={link} activeProps={active}><FileQuestion /> <span>Questões</span></Link>
