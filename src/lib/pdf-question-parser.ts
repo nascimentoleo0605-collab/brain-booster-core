@@ -6,12 +6,21 @@ export type PdfQuestion = {
   explanation: string;
 };
 
-const QUESTION = /^(?:quest[aã]o\s*)?(\d{1,4})\s*[.)º°:-]\s*(.+)$/i;
-const OPTION = /^([A-Fa-f])\s*[).:\-]\s*(.+)$/;
-const INLINE_ANSWER = /(?:resposta|gabarito|alternativa\s+correta)\s*[:\-]?\s*([A-Fa-f])\b/i;
+const QUESTION = /^(?:(?:quest[aã]o|quest(?:ion)?)[\s.:º°-]*)?(\d{1,4})\s*(?:[.)º°:\-]|–|—)\s*(.*)$/i;
+const OPTION = /^(?:alternativa\s+)?\(?([A-Fa-f])\)?\s*(?:[).:\-]|–|—)\s*(.+)$/i;
+const INLINE_ANSWER = /(?:resposta|gabarito|alternativa\s+correta|resposta\s+correta)\s*[:\-]?\s*\(?([A-Fa-f])\)?\b/i;
 
 function cleanLine(line: string) {
   return line.replace(/\s+/g, " ").trim();
+}
+
+function normalizeLayout(text: string) {
+  return text
+    .replace(/\r/g, "\n")
+    .replace(/[\u00a0\u2007\u202f]/g, " ")
+    .replace(/([^\n])\s+(?=(?:quest[aã]o\s*)?\d{1,4}\s*(?:[.)º°:\-]|–|—)\s+)/gi, "$1\n")
+    .replace(/([^\n])\s+(?=(?:alternativa\s+)?\(?[A-Fa-f]\)?\s*(?:[).:\-]|–|—)\s+)/g, "$1\n")
+    .replace(/([^\n])\s+(?=(?:resposta|alternativa\s+correta)\s*[:\-])/gi, "$1\n");
 }
 
 function collectAnswerKey(lines: string[]) {
@@ -23,7 +32,7 @@ function collectAnswerKey(lines: string[]) {
     if (/^gabarito\b/i.test(line)) inKey = true;
     if (!inKey) continue;
 
-    for (const match of line.matchAll(/(?:^|\s|[;,|])(?:quest[aã]o\s*)?(\d{1,4})\s*[-.):]?\s*([A-Fa-f])(?=\s|$|[;,|])/gi)) {
+    for (const match of line.matchAll(/(?:^|\s|[;,|])(?:quest[aã]o\s*)?(\d{1,4})\s*[-.):]?\s*\(?([A-Fa-f])\)?(?=\s|$|[;,|])/gi)) {
       const number = match[1];
       const answer = match[2];
       if (number && answer) answers.set(number, answer.toUpperCase());
@@ -33,8 +42,7 @@ function collectAnswerKey(lines: string[]) {
 }
 
 export function parsePdfQuestions(text: string): PdfQuestion[] {
-  const lines = text
-    .replace(/\r/g, "\n")
+  const lines = normalizeLayout(text)
     .split("\n")
     .map(cleanLine)
     .filter(Boolean);
@@ -55,7 +63,7 @@ export function parsePdfQuestions(text: string): PdfQuestion[] {
   };
 
   for (const line of lines) {
-    if (/^gabarito\b/i.test(line)) {
+    if (/^(?:gabarito|respostas?)\b/i.test(line) && !INLINE_ANSWER.test(line)) {
       readingKey = true;
       continue;
     }
@@ -65,11 +73,11 @@ export function parsePdfQuestions(text: string): PdfQuestion[] {
     if (question && !OPTION.test(line)) {
       const sourceNumber = question[1];
       const statement = question[2];
-      if (!sourceNumber || !statement) continue;
+      if (!sourceNumber) continue;
       finish();
       current = {
         sourceNumber,
-        statement,
+        statement: statement ?? "",
         options: [],
         correct_index: null,
         explanation: "",
