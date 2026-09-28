@@ -1,24 +1,53 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Button } from "@/components/ui/button";
+import { BookOpen, BarChart3, Layers } from "lucide-react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Caderno de Questões — estude e acompanhe seu desempenho" },
+      { name: "description", content: "Banco de questões de múltipla escolha por matéria e assunto, com gráficos de desempenho individuais." },
+      { property: "og:title", content: "Caderno de Questões" },
+      { property: "og:description", content: "Banco de questões com gráficos de desempenho individuais." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen bg-background">
+      <div className="mx-auto flex max-w-5xl flex-col px-6 py-10">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 font-serif text-xl font-semibold">
+            <BookOpen className="h-5 w-5 text-primary" /> Caderno
+          </div>
+          <Button asChild variant="outline"><Link to="/auth">Entrar</Link></Button>
+        </div>
+        <section className="py-24">
+          <p className="text-sm uppercase tracking-widest text-primary">Banco de questões</p>
+          <h1 className="mt-4 max-w-3xl font-serif text-5xl leading-tight md:text-6xl">
+            Resolva, erre, revise — e veja sua evolução por matéria.
+          </h1>
+          <p className="mt-6 max-w-xl text-lg text-muted-foreground">
+            Questões organizadas por matéria e assunto, com correção imediata e um painel pessoal de acertos.
+          </p>
+          <Button asChild size="lg" className="mt-8"><Link to="/auth">Acessar minha conta</Link></Button>
+        </section>
+        <div className="grid gap-4 md:grid-cols-3">
+          {[
+            [Layers, "Organizado", "Filtre por matéria e assunto."],
+            [BookOpen, "Correção na hora", "Veja o gabarito e o comentário."],
+            [BarChart3, "Seu desempenho", "Gráfico de acertos por matéria."],
+          ].map(([Icon, t, d]: any) => (
+            <div key={t} className="rounded-xl border bg-card p-6">
+              <Icon className="h-5 w-5 text-primary" />
+              <h3 className="mt-3 font-serif text-lg">{t}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{d}</p>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

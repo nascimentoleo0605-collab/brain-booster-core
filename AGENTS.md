@@ -8,3 +8,8 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+## Decisions
+- Only admins create accounts (public signup disabled); account creation runs in server functions in src/lib/admin.functions.ts — needs privileged access.
+- First admin is created via /auth setup form, only while no admin exists.
+- Question options stored as a JSON array of strings (2–6) so formats can grow later.
