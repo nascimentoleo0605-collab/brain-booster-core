@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ function Layout() {
   const { isAdmin, user } = Route.useRouteContext();
   const qc = useQueryClient();
   const navigate = useNavigate();
-  const router = Route.useRouter();
+  const router = useRouter();
   const goBack = () => {
     if (router.history.canGoBack()) {
       router.history.back();
@@ -50,7 +50,7 @@ function Layout() {
           </Link>
            <nav className="flex flex-1 items-center justify-around gap-1 overflow-x-auto p-2 md:block md:space-y-1 md:p-3">
              <Link to="/painel" aria-label="Desempenho" title="Desempenho" className={link} activeProps={active}><BarChart3 /> <span className="hidden md:inline">Desempenho</span></Link>
-             <Link to="/estudar" aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
+              <Link to="/estudar" search={{}} aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
              <Link to="/materias" aria-label="Matérias" title="Matérias" className={link} activeProps={active}><LayoutGrid /> <span className="hidden md:inline">Matérias</span></Link>
              <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>
             {isAdmin && (
@@ -74,7 +74,7 @@ function Layout() {
                 <ArrowLeft />
               </Button>
               <div className="min-w-0">
-              <p className="font-serif text-base font-semibold">Área de estudos</p>
+                <p className="font-serif text-base font-semibold">Área de estudos</p>
                 <p className="hidden text-xs text-muted-foreground sm:block">Acompanhe seu progresso e continue praticando.</p>
               </div>
             </div>

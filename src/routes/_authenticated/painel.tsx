@@ -89,7 +89,7 @@ function Painel() {
             {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button asChild><Link to="/estudar">Estudar agora</Link></Button>
+        <Button asChild><Link to="/estudar" search={{}}>Estudar agora</Link></Button>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
