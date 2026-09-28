@@ -17,7 +17,7 @@
 - PDF files are parsed locally in the admin browser and require review before database insertion, keeping source documents private.
 - AI-generated questions run through an authenticated admin-only server function and are reviewed client-side before insertion, protecting prompts and access.
 - The router-derived sitemap includes only explicitly public routes and excludes the authenticated subtree, preventing private app pages from being indexed.
-- Question images use a private Storage bucket with admin-only writes and signed-in reads, so study illustrations remain account-restricted.
+- Question images use a private Storage bucket with admin-only writes; signed-in users receive short-lived image links through a server function only for images attached to readable questions, preventing broad object listing.
 - Image question intake runs OCR locally in the admin browser and requires review before insertion, keeping source photos private until the admin saves them.
 - Ranking totals are assembled in an authenticated server function with only display names and aggregate counts returned, avoiding exposing individual attempts across accounts.
 - Study filters passed between pages live in typed URL search parameters, preserving browser history and direct navigation.
