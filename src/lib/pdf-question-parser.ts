@@ -24,7 +24,9 @@ function collectAnswerKey(lines: string[]) {
     if (!inKey) continue;
 
     for (const match of line.matchAll(/(?:^|\s|[;,|])(?:quest[aã]o\s*)?(\d{1,4})\s*[-.):]?\s*([A-Fa-f])(?=\s|$|[;,|])/gi)) {
-      answers.set(match[1], match[2].toUpperCase());
+      const number = match[1];
+      const answer = match[2];
+      if (number && answer) answers.set(number, answer.toUpperCase());
     }
   }
   return answers;
@@ -61,10 +63,13 @@ export function parsePdfQuestions(text: string): PdfQuestion[] {
 
     const question = line.match(QUESTION);
     if (question && !OPTION.test(line)) {
+      const sourceNumber = question[1];
+      const statement = question[2];
+      if (!sourceNumber || !statement) continue;
       finish();
       current = {
-        sourceNumber: question[1],
-        statement: question[2],
+        sourceNumber,
+        statement,
         options: [],
         correct_index: null,
         explanation: "",
@@ -76,18 +81,23 @@ export function parsePdfQuestions(text: string): PdfQuestion[] {
 
     const option = line.match(OPTION);
     if (option) {
-      optionIndex = option[1].toUpperCase().charCodeAt(0) - 65;
+      const optionLetter = option[1];
+      const optionText = option[2];
+      if (!optionLetter || !optionText) continue;
+      optionIndex = optionLetter.toUpperCase().charCodeAt(0) - 65;
       if (optionIndex === current.options.length && current.options.length < 6) {
-        current.options.push(option[2]);
+        current.options.push(optionText);
       }
-      const inline = option[2].match(INLINE_ANSWER);
-      if (inline) current.correct_index = inline[1].toUpperCase().charCodeAt(0) - 65;
+      const inline = optionText.match(INLINE_ANSWER);
+      const inlineLetter = inline?.[1];
+      if (inlineLetter) current.correct_index = inlineLetter.toUpperCase().charCodeAt(0) - 65;
       continue;
     }
 
     const inline = line.match(INLINE_ANSWER);
-    if (inline) {
-      const index = inline[1].toUpperCase().charCodeAt(0) - 65;
+    const inlineLetter = inline?.[1];
+    if (inlineLetter) {
+      const index = inlineLetter.toUpperCase().charCodeAt(0) - 65;
       current.correct_index = index < current.options.length ? index : null;
       current.explanation = line.replace(INLINE_ANSWER, "").trim();
     } else if (optionIndex >= 0 && optionIndex < current.options.length) {
