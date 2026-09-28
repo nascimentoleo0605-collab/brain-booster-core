@@ -23,3 +23,4 @@
 - Study filters passed between pages live in typed URL search parameters, preserving browser history and direct navigation.
 - Study summaries are generated on demand by an authenticated server function using registered question content as topic context, keeping AI credentials and prompts off the client.
 - Pasted question sheets are parsed in the admin browser and reviewed before insertion, keeping source text local until confirmed.
+- Question-bank reads use explicit pagination with a shared 1,500-item cap, avoiding the backend's per-request row ceiling.

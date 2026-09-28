@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Check, Flame, X } from "lucide-react";
 import { QuestionImage } from "@/components/QuestionImage";
+import { loadQuestionBank } from "@/lib/question-bank";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
   staticData: { sitemap: false },
@@ -34,12 +35,12 @@ function Estudar() {
   const { data: questionData, isLoading } = useQuery({
     queryKey: ["questions", "study", "complete"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const data = await loadQuestionBank<Q>((from, to) => supabase
         .from("questions")
         .select("id, subject, topic, statement, options, correct_index, explanation, image_path")
-        .order("created_at");
-      if (error) throw error;
-      return (data ?? []).map((question) => ({
+        .order("created_at")
+        .range(from, to) as unknown as PromiseLike<{ data: Q[] | null; error: { message: string } | null }>);
+      return data.map((question) => ({
         ...question,
         subject: question.subject ?? "Sem matéria",
         topic: question.topic ?? "",
