@@ -8,7 +8,11 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
-  head: () => ({ meta: [{ title: "Estudar — Caderno" }, { name: "description", content: "Resolva questões." }] }),
+  head: () => ({ meta: [
+    { title: "Estudar — Caderno" }, { name: "description", content: "Resolva questões por matéria e assunto." },
+    { property: "og:title", content: "Estudar — Caderno" }, { property: "og:description", content: "Resolva questões por matéria e assunto." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: Estudar,
 });
 
