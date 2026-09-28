@@ -11,6 +11,7 @@ import { Plus, Trash2, Pencil, X, ImagePlus } from "lucide-react";
 import { CsvImport } from "@/components/CsvImport";
 import { PdfImport } from "@/components/PdfImport";
 import { QuestionImage } from "@/components/QuestionImage";
+import { ImageQuestionImport } from "@/components/ImageQuestionImport";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   staticData: { sitemap: false },
@@ -90,6 +91,7 @@ function Questoes() {
         <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez por CSV ou PDF.</p>
       </div>
       <div className="flex flex-wrap gap-2">
+        <ImageQuestionImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
         <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
         <PdfImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
       </div>
