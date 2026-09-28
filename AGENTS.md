@@ -22,3 +22,4 @@
 - Ranking totals are assembled in an authenticated server function with only display names and aggregate counts returned, avoiding exposing individual attempts across accounts.
 - Study filters passed between pages live in typed URL search parameters, preserving browser history and direct navigation.
 - Study summaries are generated on demand by an authenticated server function using registered question content as topic context, keeping AI credentials and prompts off the client.
+- Pasted question sheets are parsed in the admin browser and reviewed before insertion, keeping source text local until confirmed.
