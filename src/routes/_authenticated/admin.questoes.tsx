@@ -60,6 +60,14 @@ function Questoes() {
   const shown = list.filter((q) => `${q.subject} ${q.topic} ${q.statement}`.toLowerCase().includes(filter.toLowerCase()));
 
   return (
+    <div className="space-y-6">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
+      <div>
+        <p className="font-serif text-xl">Banco de questões</p>
+        <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez por planilha CSV.</p>
+      </div>
+      <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
+    </div>
     <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
       <form onSubmit={save} className="space-y-4 rounded-xl border bg-card p-6">
         <div className="flex items-center justify-between">
@@ -95,9 +103,8 @@ function Questoes() {
       </form>
 
       <div className="space-y-3">
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <h2 className="font-serif text-2xl">Banco ({list.length})</h2>
-          <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
           <Input placeholder="Buscar…" className="ml-auto max-w-xs" value={filter} onChange={(e) => setFilter(e.target.value)} />
         </div>
         {shown.map((q) => (
