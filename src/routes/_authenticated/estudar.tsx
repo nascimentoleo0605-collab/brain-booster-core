@@ -11,8 +11,9 @@ import { QuestionImage } from "@/components/QuestionImage";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
   staticData: { sitemap: false },
-  validateSearch: (search: Record<string, unknown>): { subject?: string } =>
-    typeof search["subject"] === "string" ? { subject: search["subject"] } : {},
+  validateSearch: (search: Record<string, unknown>): { subject: string | undefined } => ({
+    subject: typeof search["subject"] === "string" ? search["subject"] : undefined,
+  }),
   head: () => ({ meta: [
     { title: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
     { property: "og:title", content: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
