@@ -12,10 +12,10 @@ import { parsePdfQuestions, type PdfQuestion } from "@/lib/pdf-question-parser";
 import { generateQuestionsFromMaterial } from "@/lib/question-generation.functions";
 
 type ReviewQuestion = PdfQuestion & { subject: string; topic: string };
-type PdfTextItem = { str?: string; transform?: number[] };
+type PdfTextItem = { str?: string; transform?: number[]; hasEOL?: boolean };
 const letters = "ABCDEF";
 
-async function extractPdfText(file: File) {
+async function extractPdfText(file: File, forceOcr = false) {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
   const task = pdfjs.getDocument({ data: await file.arrayBuffer() });
@@ -32,10 +32,12 @@ async function extractPdfText(file: File) {
       const text = item.str?.trim();
       if (!text) continue;
       const y = item.transform?.[5] ?? null;
-      pageText += lastY !== null && y !== null && Math.abs(y - lastY) > 2 ? `\n${text}` : `${pageText ? " " : ""}${text}`;
+      const changedLine = lastY !== null && y !== null && Math.abs(y - lastY) > 2;
+      pageText += changedLine ? `\n${text}` : `${pageText && !pageText.endsWith("\n") ? " " : ""}${text}`;
+      if (item.hasEOL) pageText += "\n";
       lastY = y;
     }
-    if (pageText.trim().length < 20) {
+    if (forceOcr || pageText.trim().length < 20) {
       ocrWorker ??= await (await import("tesseract.js")).createWorker("por+eng");
       const viewport = page.getViewport({ scale: 2 });
       const canvas = window.document.createElement("canvas");
@@ -94,10 +96,18 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
       }
       setSourceText(text);
       if (mode === "extract") {
-        const parsed = parsePdfQuestions(text).map((question) => ({ ...question, subject, topic }));
-        setQuestions(parsed);
-        if (!parsed.length) toast.error("Nenhuma questão de múltipla escolha foi reconhecida neste PDF.");
-        else toast.success(`${parsed.length} questões encontradas. Confira o gabarito antes de importar.`);
+        let parsed = parsePdfQuestions(text);
+        if (!parsed.length) {
+          const recognizedText = await extractPdfText(file, true);
+          if (recognizedText.trim()) {
+            setSourceText(recognizedText);
+            parsed = parsePdfQuestions(recognizedText);
+          }
+        }
+        const reviewQuestions = parsed.map((question) => ({ ...question, subject, topic }));
+        setQuestions(reviewQuestions);
+        if (!reviewQuestions.length) toast.error("Não reconhecemos o formato das questões. Tente um PDF mais nítido ou use Importar imagem.");
+        else toast.success(`${reviewQuestions.length} questões encontradas. Confira o gabarito antes de importar.`);
       } else {
         setQuestions([]);
         toast.success("Material lido. Agora gere as questões.");
