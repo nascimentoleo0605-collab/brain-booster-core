@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { BookMarked, LoaderCircle, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -110,7 +111,18 @@ function Resumos() {
               <h2 className="mt-1 font-serif text-2xl font-semibold">{topic}</h2>
             </div>
           </div>
-          <div className="whitespace-pre-wrap text-[15px] leading-7 text-card-foreground">{summary}</div>
+          <ReactMarkdown
+            components={{
+              h2: ({ children }) => <h3 className="mb-3 mt-7 font-serif text-lg font-semibold first:mt-0">{children}</h3>,
+              h3: ({ children }) => <h4 className="mb-2 mt-5 font-semibold">{children}</h4>,
+              p: ({ children }) => <p className="mb-4 text-[15px] leading-7 last:mb-0">{children}</p>,
+              ul: ({ children }) => <ul className="mb-5 space-y-2 pl-5 text-[15px] leading-7">{children}</ul>,
+              li: ({ children }) => <li className="list-disc pl-1 marker:text-primary">{children}</li>,
+              strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
+            }}
+          >
+            {summary}
+          </ReactMarkdown>
         </article>
       ) : !generating && subject && topic ? (
         <div className="py-8 text-center text-sm text-muted-foreground">Clique em “Gerar resumo” para preparar sua revisão.</div>
