@@ -18,10 +18,12 @@ const letters = "ABCDEF";
 async function extractPdfText(file: File) {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
-  const document = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  const task = pdfjs.getDocument({ data: await file.arrayBuffer() });
+  const document = await task.promise;
   const pages: string[] = [];
+  let ocrWorker: Awaited<ReturnType<typeof import("tesseract.js")["createWorker"]>> | undefined;
 
-  for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
+  try { for (let pageNumber = 1; pageNumber <= document.numPages; pageNumber++) {
     const page = await document.getPage(pageNumber);
     const content = await page.getTextContent();
     let lastY: number | null = null;
@@ -33,8 +35,23 @@ async function extractPdfText(file: File) {
       pageText += lastY !== null && y !== null && Math.abs(y - lastY) > 2 ? `\n${text}` : `${pageText ? " " : ""}${text}`;
       lastY = y;
     }
+    if (pageText.trim().length < 20) {
+      ocrWorker ??= await (await import("tesseract.js")).createWorker("por+eng");
+      const viewport = page.getViewport({ scale: 2 });
+      const canvas = window.document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const context = canvas.getContext("2d");
+      if (context) {
+        await page.render({ canvas, canvasContext: context, viewport }).promise;
+        pageText = (await ocrWorker.recognize(canvas)).data.text;
+      }
+      canvas.width = 0;
+      canvas.height = 0;
+    }
     pages.push(pageText);
-  }
+    page.cleanup();
+  }} finally { await ocrWorker?.terminate(); await task.destroy(); }
   return pages.join("\n");
 }
 
@@ -62,8 +79,8 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
 
   const onFile = async (file: File | undefined) => {
     if (!file) return;
-    if (file.size > 20 * 1024 * 1024) {
-      toast.error("O PDF deve ter no máximo 20 MB.");
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error("O PDF deve ter no máximo 100 MB.");
       return;
     }
     setReading(true);
@@ -72,7 +89,7 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
       const text = await extractPdfText(file);
       if (text.trim().length < 20) {
         setQuestions([]);
-        toast.error("Não foi possível ler o texto. Use um PDF com texto selecionável, não apenas imagens.");
+        toast.error("Não foi possível ler questões neste PDF, mesmo após reconhecer as imagens.");
         return;
       }
       setSourceText(text);
@@ -135,7 +152,11 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
       topic: question.topic.trim(),
       correct_index: question.correct_index ?? 0,
     }));
-    const { error } = await supabase.from("questions").insert(payload);
+    let error: { message: string } | null = null;
+    for (let i = 0; i < payload.length; i += 100) {
+      const result = await supabase.from("questions").insert(payload.slice(i, i + 100));
+      if (result.error) { error = result.error; break; }
+    }
     setBusy(false);
     if (error) {
       toast.error(error.message);
@@ -198,7 +219,7 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
         <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-5 text-center hover:bg-muted/60">
           {reading ? <LoaderCircle className="h-6 w-6 animate-spin text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
           <span className="text-sm font-medium">{reading ? "Lendo o PDF…" : fileName || "Selecionar arquivo PDF"}</span>
-          <span className="text-xs text-muted-foreground">Até 20 MB. O arquivo não será armazenado.</span>
+           <span className="text-xs text-muted-foreground">Até 100 MB, inclusive PDFs digitalizados. O arquivo não será armazenado.</span>
           <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={reading} onChange={(event) => onFile(event.target.files?.[0])} />
         </label>
 

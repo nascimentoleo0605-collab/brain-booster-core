@@ -14,7 +14,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticated/estudar'
+import { Route as AuthenticatedMateriasRouteImport } from './routes/_authenticated/materias'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedAdminQuestoesRouteImport } from './routes/_authenticated/admin.questoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 
@@ -42,9 +44,19 @@ const AuthenticatedEstudarRoute = AuthenticatedEstudarRouteImport.update({
   path: '/estudar',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMateriasRoute = AuthenticatedMateriasRouteImport.update({
+  id: '/materias',
+  path: '/materias',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminQuestoesRoute =
@@ -65,7 +77,9 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
+  '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -74,7 +88,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
+  '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -85,7 +101,9 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/estudar': typeof AuthenticatedEstudarRoute
+  '/_authenticated/materias': typeof AuthenticatedMateriasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -96,7 +114,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/estudar'
+    | '/materias'
     | '/painel'
+    | '/ranking'
     | '/admin/questoes'
     | '/admin/usuarios'
   fileRoutesByTo: FileRoutesByTo
@@ -105,7 +125,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/estudar'
+    | '/materias'
     | '/painel'
+    | '/ranking'
     | '/admin/questoes'
     | '/admin/usuarios'
   id:
@@ -115,7 +137,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/estudar'
+    | '/_authenticated/materias'
     | '/_authenticated/painel'
+    | '/_authenticated/ranking'
     | '/_authenticated/admin/questoes'
     | '/_authenticated/admin/usuarios'
   fileRoutesById: FileRoutesById
@@ -164,11 +188,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEstudarRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/materias': {
+      id: '/_authenticated/materias'
+      path: '/materias'
+      fullPath: '/materias'
+      preLoaderRoute: typeof AuthenticatedMateriasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/painel': {
       id: '/_authenticated/painel'
       path: '/painel'
       fullPath: '/painel'
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ranking': {
+      id: '/_authenticated/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof AuthenticatedRankingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/admin/questoes': {
@@ -190,14 +228,18 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstudarRoute: typeof AuthenticatedEstudarRoute
+  AuthenticatedMateriasRoute: typeof AuthenticatedMateriasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedAdminQuestoesRoute: typeof AuthenticatedAdminQuestoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstudarRoute: AuthenticatedEstudarRoute,
+  AuthenticatedMateriasRoute: AuthenticatedMateriasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedAdminQuestoesRoute: AuthenticatedAdminQuestoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
 }
