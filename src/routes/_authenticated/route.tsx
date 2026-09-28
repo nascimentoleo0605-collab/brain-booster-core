@@ -30,8 +30,8 @@ function Layout() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
-  const link = "flex h-10 items-center gap-3 rounded-md px-3 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground";
-  const active = { className: "flex h-10 items-center gap-3 rounded-md bg-sidebar-accent px-3 text-sm font-medium text-sidebar-accent-foreground" };
+  const link = "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md px-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:justify-start md:px-3";
+  const active = { className: "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md bg-sidebar-accent px-2 text-sm font-medium text-sidebar-accent-foreground md:justify-start md:px-3" };
   return (
     <div className="min-h-screen bg-background p-0 md:p-4">
       <div className="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden border-border bg-card/30 md:min-h-[calc(100vh-2rem)] md:rounded-lg md:border">
@@ -41,14 +41,14 @@ function Layout() {
             Caderno
           </Link>
            <nav className="flex flex-1 items-center justify-around gap-1 overflow-x-auto p-2 md:block md:space-y-1 md:p-3">
-            <Link to="/painel" className={link} activeProps={active}><BarChart3 /> <span>Desempenho</span></Link>
-            <Link to="/estudar" className={link} activeProps={active}><GraduationCap /> <span>Estudar</span></Link>
-             <Link to="/materias" className={link} activeProps={active}><LayoutGrid /> <span>Matérias</span></Link>
-             <Link to="/ranking" className={link} activeProps={active}><Trophy /> <span>Ranking</span></Link>
+             <Link to="/painel" aria-label="Desempenho" title="Desempenho" className={link} activeProps={active}><BarChart3 /> <span className="hidden md:inline">Desempenho</span></Link>
+             <Link to="/estudar" aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
+             <Link to="/materias" aria-label="Matérias" title="Matérias" className={link} activeProps={active}><LayoutGrid /> <span className="hidden md:inline">Matérias</span></Link>
+             <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>
             {isAdmin && (
               <>
-                <Link to="/admin/questoes" className={link} activeProps={active}><FileQuestion /> <span>Questões</span></Link>
-                <Link to="/admin/usuarios" className={link} activeProps={active}><Users /> <span>Usuários</span></Link>
+                 <Link to="/admin/questoes" aria-label="Questões" title="Questões" className={link} activeProps={active}><FileQuestion /> <span className="hidden md:inline">Questões</span></Link>
+                 <Link to="/admin/usuarios" aria-label="Usuários" title="Usuários" className={link} activeProps={active}><Users /> <span className="hidden md:inline">Usuários</span></Link>
               </>
             )}
           </nav>
