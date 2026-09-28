@@ -65,12 +65,13 @@ export function parsePastedQuestions(text: string): PastedQuestion[] {
     }
   }
   finish();
-  return found.map((item) => ({
-    ...item,
-    correct_index: item.correct_index !== null && item.correct_index < item.options.length
-      ? item.correct_index
-      : (answerKey.get(item.sourceNumber) ?? null) < item.options.length
-        ? answerKey.get(item.sourceNumber) ?? null
-        : null,
-  }));
+  return found.map((item) => {
+    const keyIndex = answerKey.get(item.sourceNumber);
+    return {
+      ...item,
+      correct_index: item.correct_index !== null && item.correct_index < item.options.length
+        ? item.correct_index
+        : keyIndex !== undefined && keyIndex < item.options.length ? keyIndex : null,
+    };
+  });
 }
