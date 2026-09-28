@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 ## Decisions
+- The site name is MEUCBFPM; use it consistently in visible branding and page titles.
 - Only admins create accounts (public signup disabled); account creation runs in server functions in src/lib/admin.functions.ts — needs privileged access.
 - First admin is created via /auth setup form, only while no admin exists.
 - Question options stored as a JSON array of strings (2–6) so formats can grow later.

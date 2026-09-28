@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 export const Route = createFileRoute("/_authenticated/materias")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "Matérias | Caderno de Questões — pratique, revise e evolua" },
-    { name: "description", content: "Veja seu aproveitamento por matéria no Caderno de Questões." },
-    { property: "og:title", content: "Matérias | Caderno de Questões — pratique, revise e evolua" },
-    { property: "og:description", content: "Veja seu aproveitamento por matéria no Caderno de Questões." },
+    { title: "Matérias | MEUCBFPM" },
+    { name: "description", content: "Veja seu aproveitamento por matéria no MEUCBFPM." },
+    { property: "og:title", content: "Matérias | MEUCBFPM" },
+    { property: "og:description", content: "Veja seu aproveitamento por matéria no MEUCBFPM." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
   ] }),

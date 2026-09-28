@@ -17,9 +17,9 @@ export const Route = createFileRoute("/_authenticated/admin/questoes")({
   staticData: { sitemap: false },
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
   head: () => ({ meta: [
-    { title: "Questões | Caderno de Questões — pratique, revise e evolua" },
+    { title: "Questões | MEUCBFPM" },
     { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Gerencie o banco de questões." },
-    { property: "og:title", content: "Questões | Caderno de Questões — pratique, revise e evolua" },
+    { property: "og:title", content: "Questões | MEUCBFPM" },
     { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Gerencie o banco de questões." },
     { name: "robots", content: "noindex, nofollow" },
   ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/admin/questoes" }] }),

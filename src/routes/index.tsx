@@ -6,9 +6,9 @@ export const Route = createFileRoute("/")({
   staticData: { sitemap: true },
   head: () => ({
     meta: [
-      { title: "Caderno de Questões — pratique, revise e evolua" },
+      { title: "MEUCBFPM — pratique, revise e evolua" },
       { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-      { property: "og:title", content: "Caderno de Questões — pratique, revise e evolua" },
+      { property: "og:title", content: "MEUCBFPM — pratique, revise e evolua" },
       { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
     ],
     links: [{ rel: "canonical", href: "https://stonehawk.com.br/" }],

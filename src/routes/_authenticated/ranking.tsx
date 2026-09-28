@@ -7,10 +7,10 @@ import { getRanking } from "@/lib/ranking.functions";
 export const Route = createFileRoute("/_authenticated/ranking")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "Ranking | Caderno de Questões — pratique, revise e evolua" },
-    { name: "description", content: "Acompanhe o ranking de acertos do Caderno de Questões." },
-    { property: "og:title", content: "Ranking | Caderno de Questões — pratique, revise e evolua" },
-    { property: "og:description", content: "Acompanhe o ranking de acertos do Caderno de Questões." },
+    { title: "Ranking | MEUCBFPM" },
+    { name: "description", content: "Acompanhe o ranking de acertos do MEUCBFPM." },
+    { property: "og:title", content: "Ranking | MEUCBFPM" },
+    { property: "og:description", content: "Acompanhe o ranking de acertos do MEUCBFPM." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
   ] }),

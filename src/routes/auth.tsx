@@ -13,9 +13,9 @@ export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
   head: () => ({
     meta: [
-      { title: "Entrar | Caderno de Questões — pratique, revise e evolua" },
+      { title: "Entrar | MEUCBFPM" },
       { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
-      { property: "og:title", content: "Entrar | Caderno de Questões — pratique, revise e evolua" },
+      { property: "og:title", content: "Entrar | MEUCBFPM" },
       { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
       { name: "robots", content: "noindex, nofollow" },
     ],
@@ -63,7 +63,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm rounded-lg border bg-card p-7">
         <div className="mb-8 flex items-center gap-3 font-serif text-xl font-semibold">
-          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span> Caderno
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span> MEUCBFPM
         </div>
         {mode === null ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
