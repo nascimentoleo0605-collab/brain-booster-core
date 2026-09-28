@@ -67,10 +67,10 @@ function Painel() {
   const axis = { stroke: "var(--muted-foreground)", fontSize: 12 };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-end gap-3">
         <div className="mr-auto">
-          <h1 className="font-serif text-3xl">Seu desempenho</h1>
+          <h1 className="font-serif text-2xl font-semibold">Seu desempenho</h1>
           <p className="text-muted-foreground">Acertos, erros e evolução.</p>
         </div>
         <Select value={period} onValueChange={setPeriod}>
@@ -87,7 +87,7 @@ function Painel() {
         <Button asChild><Link to="/estudar">Estudar agora</Link></Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat label="Respondidas" value={total} />
         <Stat label="Acertos" value={acertos} />
         <Stat label="Erros" value={total - acertos} />
@@ -97,7 +97,7 @@ function Painel() {
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
       ) : data.length === 0 ? (
-        <div className="rounded-xl border bg-card p-8 text-muted-foreground">Nenhuma resposta neste período. Resolva algumas questões para ver seus gráficos.</div>
+        <div className="rounded-lg border bg-card p-8 text-muted-foreground">Nenhuma resposta neste período. Resolva algumas questões para ver seus gráficos.</div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-2">
           <Card title="Evolução ao longo do tempo" className="lg:col-span-2">
@@ -145,8 +145,8 @@ function Bars({ data, axis }: { data: any[]; axis: any }) {
 
 function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={`rounded-xl border bg-card p-6 ${className}`}>
-      <h2 className="mb-4 font-serif text-lg">{title}</h2>
+    <div className={`rounded-lg border bg-card p-5 ${className}`}>
+      <h2 className="mb-4 font-serif text-base font-semibold">{title}</h2>
       <div className="h-72">{children}</div>
     </div>
   );
@@ -154,9 +154,9 @@ function Card({ title, children, className = "" }: { title: string; children: Re
 
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
-    <div className="rounded-xl border bg-card p-5">
+    <div className="rounded-lg border bg-card p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
-      <p className="mt-1 font-serif text-3xl">{value}</p>
+      <p className="mt-1 font-serif text-2xl font-semibold">{value}</p>
     </div>
   );
 }

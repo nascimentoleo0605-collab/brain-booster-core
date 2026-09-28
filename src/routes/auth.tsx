@@ -58,16 +58,16 @@ function AuthPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm rounded-2xl border bg-card p-8 shadow-sm">
-        <div className="mb-6 flex items-center gap-2 font-serif text-2xl font-semibold">
-          <BookOpen className="h-6 w-6 text-primary" /> Caderno
+      <div className="w-full max-w-sm rounded-lg border bg-card p-7">
+        <div className="mb-8 flex items-center gap-3 font-serif text-xl font-semibold">
+          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span> Caderno
         </div>
         {mode === null ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <h1 className="font-serif text-xl">{mode === "setup" ? "Configurar administrador" : "Entrar"}</h1>
+              <h1 className="font-serif text-2xl font-semibold">{mode === "setup" ? "Configurar administrador" : "Entrar"}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {mode === "setup"
                   ? "Primeiro acesso: crie a conta do administrador."
