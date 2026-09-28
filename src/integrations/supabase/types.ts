@@ -77,6 +77,7 @@ export type Database = {
           created_by: string | null
           explanation: string
           id: string
+          image_path: string | null
           options: Json
           statement: string
           subject: string
@@ -88,6 +89,7 @@ export type Database = {
           created_by?: string | null
           explanation?: string
           id?: string
+          image_path?: string | null
           options: Json
           statement: string
           subject: string
@@ -99,6 +101,7 @@ export type Database = {
           created_by?: string | null
           explanation?: string
           id?: string
+          image_path?: string | null
           options?: Json
           statement?: string
           subject?: string
