@@ -31,14 +31,28 @@ function Estudar() {
   const qc = useQueryClient();
   const { user } = Route.useRouteContext();
   const search = Route.useSearch();
-  const { data: questions = [], isLoading } = useQuery({
-    queryKey: ["questions", "study"],
+  const { data: questionData, isLoading } = useQuery({
+    queryKey: ["questions", "study", "complete"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("questions").select("*").order("created_at");
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id, subject, topic, statement, options, correct_index, explanation, image_path")
+        .order("created_at");
       if (error) throw error;
-      return data as unknown as Q[];
+      return (data ?? []).map((question) => ({
+        ...question,
+        subject: question.subject ?? "Sem matéria",
+        topic: question.topic ?? "",
+        statement: question.statement ?? "",
+        options: Array.isArray(question.options)
+          ? question.options.filter((option): option is string => typeof option === "string")
+          : [],
+        explanation: question.explanation ?? "",
+        image_path: question.image_path ?? null,
+      })) as Q[];
     },
   });
+  const questions = Array.isArray(questionData) ? questionData : [];
   const [subject, setSubject] = useState(search.subject ?? ALL);
   const [topic, setTopic] = useState(ALL);
   const [idx, setIdx] = useState(0);
@@ -130,7 +144,11 @@ function Estudar() {
           <p className="whitespace-pre-wrap text-lg leading-relaxed">{q.statement}</p>
           <QuestionImage path={q.image_path} />
           <div className="mt-6 space-y-2">
-            {q.options.map((opt, i) => {
+            {q.options.length < 2 ? (
+              <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+                Esta questão está sem alternativas válidas. Peça ao administrador para revisá-la.
+              </p>
+            ) : q.options.map((opt, i) => {
               const isCorrect = i === q.correct_index;
               return (
                 <Button
@@ -163,7 +181,7 @@ function Estudar() {
           )}
           <div className="mt-6 flex justify-end gap-2">
             {!answered ? (
-               <Button onClick={answer} disabled={selected === null || saving}>{saving ? "Salvando…" : "Responder"}</Button>
+               <Button onClick={answer} disabled={q.options.length < 2 || selected === null || saving}>{saving ? "Salvando…" : "Responder"}</Button>
             ) : (
                <Button onClick={() => { if (!onlyWrong || selected !== q.correct_index) setIdx((i) => i + 1); reset(); }}>Próxima</Button>
             )}
