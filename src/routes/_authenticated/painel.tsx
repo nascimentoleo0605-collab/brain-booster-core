@@ -1,77 +1,153 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, Line, LineChart,
+} from "recharts";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/painel")({
-  head: () => ({ meta: [{ title: "Desempenho — Caderno" }, { name: "description", content: "Seu desempenho por matéria." }] }),
+  head: () => ({ meta: [{ title: "Desempenho — Caderno" }, { name: "description", content: "Seu desempenho por matéria e assunto." }] }),
   component: Painel,
 });
 
+const PERIODS: Record<string, { label: string; days: number | null }> = {
+  "7": { label: "Últimos 7 dias", days: 7 },
+  "30": { label: "Últimos 30 dias", days: 30 },
+  "90": { label: "Últimos 90 dias", days: 90 },
+  all: { label: "Todo o período", days: null },
+};
+const ALL = "__all";
+
+type A = { is_correct: boolean; created_at: string; questions: { subject: string; topic: string } | null };
+
+function group(rows: A[], key: (a: A) => string) {
+  const m = new Map<string, { acertos: number; erros: number }>();
+  rows.forEach((a) => {
+    const k = key(a);
+    const c = m.get(k) ?? { acertos: 0, erros: 0 };
+    a.is_correct ? c.acertos++ : c.erros++;
+    m.set(k, c);
+  });
+  return [...m.entries()].map(([nome, v]) => ({
+    nome, ...v, total: v.acertos + v.erros,
+    percentual: Math.round((v.acertos / (v.acertos + v.erros)) * 100),
+  }));
+}
+
 function Painel() {
   const { user } = Route.useRouteContext();
-  const { data, isLoading } = useQuery({
-    queryKey: ["attempts", user.id],
+  const [period, setPeriod] = useState("30");
+  const [subject, setSubject] = useState(ALL);
+
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["attempts", user.id, period],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("attempts")
-        .select("is_correct, questions(subject)")
-        .eq("user_id", user.id);
+      let q = supabase.from("attempts").select("is_correct, created_at, questions(subject, topic)").eq("user_id", user.id).order("created_at");
+      const days = PERIODS[period].days;
+      if (days) q = q.gte("created_at", new Date(Date.now() - days * 864e5).toISOString());
+      const { data, error } = await q;
       if (error) throw error;
-      return data;
+      return data as unknown as A[];
     },
   });
 
-  const bySubject = new Map<string, { acertos: number; total: number }>();
-  (data ?? []).forEach((a: any) => {
-    const s = a.questions?.subject ?? "—";
-    const cur = bySubject.get(s) ?? { acertos: 0, total: 0 };
-    cur.total++;
-    if (a.is_correct) cur.acertos++;
-    bySubject.set(s, cur);
-  });
-  const chart = [...bySubject.entries()].map(([materia, v]) => ({
-    materia,
-    percentual: Math.round((v.acertos / v.total) * 100),
-    ...v,
-  }));
-  const total = data?.length ?? 0;
-  const acertos = (data ?? []).filter((a) => a.is_correct).length;
+  const subjects = useMemo(() => [...new Set(data.map((a) => a.questions?.subject ?? "—"))].sort(), [data]);
+  const rows = subject === ALL ? data : data.filter((a) => a.questions?.subject === subject);
+  const bySubject = group(data, (a) => a.questions?.subject ?? "—");
+  const byTopic = group(rows, (a) => (subject === ALL ? `${a.questions?.subject} · ` : "") + (a.questions?.topic || "Sem assunto"));
+  const timeline = group(rows, (a) => a.created_at.slice(0, 10))
+    .sort((x, y) => x.nome.localeCompare(y.nome))
+    .map((d) => ({ ...d, dia: d.nome.slice(8, 10) + "/" + d.nome.slice(5, 7) }));
+
+  const total = rows.length;
+  const acertos = rows.filter((a) => a.is_correct).length;
+  const axis = { stroke: "var(--muted-foreground)", fontSize: 12 };
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="mr-auto">
           <h1 className="font-serif text-3xl">Seu desempenho</h1>
-          <p className="text-muted-foreground">Percentual de acertos por matéria.</p>
+          <p className="text-muted-foreground">Acertos, erros e evolução.</p>
         </div>
+        <Select value={period} onValueChange={setPeriod}>
+          <SelectTrigger className="w-44"><SelectValue /></SelectTrigger>
+          <SelectContent>{Object.entries(PERIODS).map(([k, p]) => <SelectItem key={k} value={k}>{p.label}</SelectItem>)}</SelectContent>
+        </Select>
+        <Select value={subject} onValueChange={setSubject}>
+          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL}>Todas as matérias</SelectItem>
+            {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+          </SelectContent>
+        </Select>
         <Button asChild><Link to="/estudar">Estudar agora</Link></Button>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+
+      <div className="grid gap-4 sm:grid-cols-4">
         <Stat label="Respondidas" value={total} />
         <Stat label="Acertos" value={acertos} />
+        <Stat label="Erros" value={total - acertos} />
         <Stat label="Aproveitamento" value={total ? `${Math.round((acertos / total) * 100)}%` : "—"} />
       </div>
-      <div className="rounded-xl border bg-card p-6">
-        {isLoading ? (
-          <p className="text-muted-foreground">Carregando…</p>
-        ) : chart.length === 0 ? (
-          <p className="text-muted-foreground">Responda algumas questões para ver seu gráfico.</p>
-        ) : (
-          <div className="h-80">
+
+      {isLoading ? (
+        <p className="text-muted-foreground">Carregando…</p>
+      ) : data.length === 0 ? (
+        <div className="rounded-xl border bg-card p-8 text-muted-foreground">Nenhuma resposta neste período. Resolva algumas questões para ver seus gráficos.</div>
+      ) : (
+        <div className="grid gap-6 lg:grid-cols-2">
+          <Card title="Evolução ao longo do tempo" className="lg:col-span-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chart}>
+              <LineChart data={timeline}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis dataKey="materia" stroke="var(--muted-foreground)" fontSize={12} />
-                <YAxis domain={[0, 100]} unit="%" stroke="var(--muted-foreground)" fontSize={12} />
-                <Tooltip formatter={(v: any, _n, p: any) => [`${v}% (${p.payload.acertos}/${p.payload.total})`, "Acertos"]} />
-                <Bar dataKey="percentual" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
-              </BarChart>
+                <XAxis dataKey="dia" {...axis} />
+                <YAxis yAxisId="l" allowDecimals={false} {...axis} />
+                <YAxis yAxisId="r" orientation="right" domain={[0, 100]} unit="%" {...axis} />
+                <Tooltip />
+                <Legend />
+                <Line yAxisId="l" dataKey="acertos" name="Acertos" stroke="var(--chart-1)" strokeWidth={2} />
+                <Line yAxisId="l" dataKey="erros" name="Erros" stroke="var(--destructive)" strokeWidth={2} />
+                <Line yAxisId="r" dataKey="percentual" name="% acerto" stroke="var(--chart-4)" strokeDasharray="4 4" />
+              </LineChart>
             </ResponsiveContainer>
-          </div>
-        )}
-      </div>
+          </Card>
+          <Card title="Por matéria">
+            <Bars data={bySubject} axis={axis} />
+          </Card>
+          <Card title={subject === ALL ? "Por assunto" : `Assuntos de ${subject}`}>
+            <Bars data={byTopic} axis={axis} />
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Bars({ data, axis }: { data: any[]; axis: any }) {
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+        <XAxis type="number" allowDecimals={false} {...axis} />
+        <YAxis type="category" dataKey="nome" width={120} {...axis} />
+        <Tooltip formatter={(v: any, n: any) => [v, n]} />
+        <Legend />
+        <Bar dataKey="acertos" name="Acertos" stackId="a" fill="var(--chart-1)" />
+        <Bar dataKey="erros" name="Erros" stackId="a" fill="var(--destructive)" radius={[0, 4, 4, 0]} />
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
+function Card({ title, children, className = "" }: { title: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className={`rounded-xl border bg-card p-6 ${className}`}>
+      <h2 className="mb-4 font-serif text-lg">{title}</h2>
+      <div className="h-72">{children}</div>
     </div>
   );
 }
