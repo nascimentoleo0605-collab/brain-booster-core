@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { FileText, LoaderCircle, Trash2, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { parsePdfQuestions, type PdfQuestion } from "@/lib/pdf-question-parser";
+import { generateQuestionsFromMaterial } from "@/lib/question-generation.functions";
 
 type ReviewQuestion = PdfQuestion & { subject: string; topic: string };
 type PdfTextItem = { str?: string; transform?: number[] };
@@ -37,9 +39,14 @@ async function extractPdfText(file: File) {
 }
 
 export function PdfImport({ onDone }: { onDone: () => void }) {
+  const generateQuestions = useServerFn(generateQuestionsFromMaterial);
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"extract" | "generate">("extract");
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [sourceText, setSourceText] = useState("");
+  const [count, setCount] = useState<20 | 30>(20);
   const [fileName, setFileName] = useState("");
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState("");
@@ -49,6 +56,7 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
     setFileName("");
     setSubject("");
     setTopic("");
+    setSourceText("");
     setQuestions([]);
   };
 
@@ -67,15 +75,44 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
         toast.error("Não foi possível ler o texto. Use um PDF com texto selecionável, não apenas imagens.");
         return;
       }
-      const parsed = parsePdfQuestions(text).map((question) => ({ ...question, subject, topic }));
-      setQuestions(parsed);
-      if (!parsed.length) toast.error("Nenhuma questão de múltipla escolha foi reconhecida neste PDF.");
-      else toast.success(`${parsed.length} questões encontradas. Confira o gabarito antes de importar.`);
+      setSourceText(text);
+      if (mode === "extract") {
+        const parsed = parsePdfQuestions(text).map((question) => ({ ...question, subject, topic }));
+        setQuestions(parsed);
+        if (!parsed.length) toast.error("Nenhuma questão de múltipla escolha foi reconhecida neste PDF.");
+        else toast.success(`${parsed.length} questões encontradas. Confira o gabarito antes de importar.`);
+      } else {
+        setQuestions([]);
+        toast.success("Material lido. Agora gere as questões.");
+      }
     } catch {
       setQuestions([]);
       toast.error("Não foi possível abrir este PDF. Verifique se o arquivo não está protegido.");
     } finally {
       setReading(false);
+    }
+  };
+
+  const generate = async () => {
+    if (!subject.trim()) {
+      toast.error("Informe a matéria antes de gerar.");
+      return;
+    }
+    if (!sourceText) return;
+    setGenerating(true);
+    try {
+      const result = await generateQuestions({ data: { sourceText, count, subject, topic } });
+      setQuestions(result.questions.map((question, index) => ({
+        ...question,
+        sourceNumber: String(index + 1),
+        subject: subject.trim(),
+        topic: topic.trim(),
+      })));
+      toast.success(`${result.questions.length} questões geradas. Revise antes de importar.`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar as questões.");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -119,9 +156,18 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
         <DialogHeader>
           <DialogTitle className="font-serif">Importar questões por PDF</DialogTitle>
           <DialogDescription>
-            Envie um PDF com texto selecionável. O gabarito será reconhecido quando estiver indicado por questão ou em uma seção “Gabarito”.
+            Extraia uma prova pronta ou crie novas questões a partir de um PDF de conteúdo. Tudo passa por sua revisão.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="grid grid-cols-2 rounded-lg bg-muted p-1">
+          <Button type="button" variant={mode === "extract" ? "default" : "ghost"} onClick={() => { setMode("extract"); setQuestions([]); setSourceText(""); setFileName(""); }}>
+            Extrair prova pronta
+          </Button>
+          <Button type="button" variant={mode === "generate" ? "default" : "ghost"} onClick={() => { setMode("generate"); setQuestions([]); setSourceText(""); setFileName(""); }}>
+            Gerar do material
+          </Button>
+        </div>
 
         <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <div className="space-y-1.5">
@@ -137,12 +183,30 @@ export function PdfImport({ onDone }: { onDone: () => void }) {
           </Button>
         </div>
 
+        {mode === "generate" && (
+          <div className="flex items-center gap-3">
+            <Label>Quantidade</Label>
+            <div className="flex rounded-md border p-1">
+              {[20, 30].map((value) => (
+                <Button key={value} type="button" size="sm" variant={count === value ? "default" : "ghost"} onClick={() => setCount(value as 20 | 30)}>{value}</Button>
+              ))}
+            </div>
+            <span className="text-sm text-muted-foreground">alternativas A, B, C e D</span>
+          </div>
+        )}
+
         <label className="flex min-h-28 cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border border-dashed p-5 text-center hover:bg-muted/60">
           {reading ? <LoaderCircle className="h-6 w-6 animate-spin text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
           <span className="text-sm font-medium">{reading ? "Lendo o PDF…" : fileName || "Selecionar arquivo PDF"}</span>
           <span className="text-xs text-muted-foreground">Até 20 MB. O arquivo não será armazenado.</span>
           <input type="file" accept="application/pdf,.pdf" className="sr-only" disabled={reading} onChange={(event) => onFile(event.target.files?.[0])} />
         </label>
+
+        {mode === "generate" && sourceText && !questions.length && (
+          <Button className="w-full" disabled={generating || !subject.trim()} onClick={generate}>
+            {generating ? <><LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Criando questões…</> : `Gerar ${count} questões`}
+          </Button>
+        )}
 
         {questions.length > 0 && (
           <div className="space-y-3">
