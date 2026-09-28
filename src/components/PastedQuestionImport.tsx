@@ -31,10 +31,23 @@ export function PastedQuestionImport({ onDone }: { onDone: () => void }) {
     setQuestions((previous) => previous.map((question, i) => i === index ? { ...question, ...patch } : question));
   };
   const ready = questions.filter((question) => question.statement.trim() && question.options.every((option) => option.trim()) && question.correct_index !== null && question.correct_index < question.options.length);
+  const pendingAnswers = questions.length - ready.length;
+  const missingClassification = !subject.trim() || !topic.trim();
 
   const save = async () => {
-    if (!subject.trim() || !topic.trim() || !ready.length || ready.length !== questions.length) {
-      toast.error("Informe matéria e assunto e confirme o gabarito de todas as questões."); return;
+    if (!subject.trim()) {
+      toast.error("Informe a matéria antes de cadastrar.");
+      document.getElementById("paste-subject")?.focus();
+      return;
+    }
+    if (!topic.trim()) {
+      toast.error("Informe o assunto antes de cadastrar.");
+      document.getElementById("paste-topic")?.focus();
+      return;
+    }
+    if (!ready.length || ready.length !== questions.length) {
+      toast.error(`Confirme o gabarito das ${pendingAnswers || questions.length} questões pendentes.`);
+      return;
     }
     setSaving(true);
     try {
@@ -58,7 +71,10 @@ export function PastedQuestionImport({ onDone }: { onDone: () => void }) {
       toast.success(`${payload.length} questões cadastradas${ready.length > payload.length ? ` · ${ready.length - payload.length} já existentes` : ""}`);
       reset(); setOpen(false); onDone();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Não foi possível cadastrar as questões.");
+      const message = error && typeof error === "object" && "message" in error && typeof error.message === "string"
+        ? error.message
+        : "Não foi possível cadastrar as questões.";
+      toast.error(message);
     } finally { setSaving(false); }
   };
 
@@ -89,7 +105,12 @@ export function PastedQuestionImport({ onDone }: { onDone: () => void }) {
           </label>)}</div>
           {question.correct_index === null && <p className="text-sm text-destructive">Resposta correta não identificada. Selecione uma alternativa.</p>}
         </div>)}
-        <Button className="w-full" disabled={saving || ready.length !== questions.length || !subject.trim() || !topic.trim()} onClick={save}>{saving ? "Cadastrando…" : `Cadastrar ${questions.length} questões`}</Button>
+        <div className="sticky bottom-0 space-y-2 border-t bg-background pt-3">
+          {(missingClassification || pendingAnswers > 0) && <p role="status" className="text-sm text-destructive">
+            {missingClassification ? "Preencha matéria e assunto. " : ""}{pendingAnswers > 0 ? `${pendingAnswers} questões ainda precisam de gabarito.` : ""}
+          </p>}
+          <Button type="button" className="w-full" disabled={saving} onClick={() => { void save(); }}>{saving ? "Cadastrando…" : `Cadastrar ${questions.length} questões`}</Button>
+        </div>
       </div>}
     </DialogContent>
   </Dialog>;
