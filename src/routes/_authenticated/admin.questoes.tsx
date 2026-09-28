@@ -9,10 +9,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Trash2, Pencil, X } from "lucide-react";
 import { CsvImport } from "@/components/CsvImport";
+import { PdfImport } from "@/components/PdfImport";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
-  head: () => ({ meta: [{ title: "Questões — Caderno" }, { name: "description", content: "Gerencie o banco de questões." }] }),
+  head: () => ({ meta: [
+    { title: "Questões — Caderno" },
+    { name: "description", content: "Cadastre e importe questões de múltipla escolha por CSV ou PDF." },
+    { property: "og:title", content: "Questões — Caderno" },
+    { property: "og:description", content: "Cadastre e importe questões de múltipla escolha por CSV ou PDF." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: Questoes,
 });
 
@@ -64,9 +72,12 @@ function Questoes() {
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
       <div>
         <p className="font-serif text-xl">Banco de questões</p>
-        <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez por planilha CSV.</p>
+        <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez por CSV ou PDF.</p>
       </div>
-      <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
+      <div className="flex flex-wrap gap-2">
+        <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
+        <PdfImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
+      </div>
     </div>
     <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">
       <form onSubmit={save} className="space-y-4 rounded-xl border bg-card p-6">
