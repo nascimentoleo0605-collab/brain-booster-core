@@ -19,7 +19,7 @@ function normalizeLayout(text: string) {
     .replace(/\r/g, "\n")
     .replace(/[\u00a0\u2007\u202f]/g, " ")
     .replace(/([^\n])\s+(?=(?:quest[aã]o\s*)?\d{1,4}\s*(?:[.)º°:\-]|–|—)\s+)/gi, "$1\n")
-    .replace(/([^\n])\s+(?=(?:alternativa\s+)?\(?[A-F]\)?\s*(?:[).:\-]|–|—)\s+)/gi, "$1\n")
+    .replace(/([^\n])\s+(?=(?:alternativa\s+\(?[A-F]\)?|(?<!alternativa\s)\(?[A-F]\)?)\s*(?:[).:\-]|–|—)\s+)/gi, "$1\n")
     .replace(/([^\n])\s+(?=(?:resposta|alternativa\s+correta)\s*[:\-])/gi, "$1\n");
 }
 
