@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
+  staticData: { sitemap: "exclude-subtree" },
   ssr: false,
   beforeLoad: async () => {
     const { data, error } = await supabase.auth.getUser();

@@ -15,3 +15,4 @@
 - Question options stored as a JSON array of strings (2–6) so formats can grow later.
 - PDF files are parsed locally in the admin browser and require review before database insertion, keeping source documents private.
 - AI-generated questions run through an authenticated admin-only server function and are reviewed client-side before insertion, protecting prompts and access.
+- The router-derived sitemap includes only explicitly public routes and excludes the authenticated subtree, preventing private app pages from being indexed.

@@ -12,15 +12,15 @@ import { CsvImport } from "@/components/CsvImport";
 import { PdfImport } from "@/components/PdfImport";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
+  staticData: { sitemap: false },
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
   head: () => ({ meta: [
     { title: "Questões | Caderno de Questões — pratique, revise e evolua" },
-    { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+    { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Gerencie o banco de questões." },
     { property: "og:title", content: "Questões | Caderno de Questões — pratique, revise e evolua" },
-    { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+    { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Gerencie o banco de questões." },
+    { name: "robots", content: "noindex, nofollow" },
+  ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/admin/questoes" }] }),
   component: Questoes,
 });
 
