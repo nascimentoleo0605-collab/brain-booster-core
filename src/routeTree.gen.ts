@@ -17,6 +17,7 @@ import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMateriasRouteImport } from './routes/_authenticated/materias'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
+import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedAdminQuestoesRouteImport } from './routes/_authenticated/admin.questoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 
@@ -59,6 +60,11 @@ const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
   path: '/ranking',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedResumosRoute = AuthenticatedResumosRouteImport.update({
+  id: '/resumos',
+  path: '/resumos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminQuestoesRoute =
   AuthenticatedAdminQuestoesRouteImport.update({
     id: '/admin/questoes',
@@ -80,6 +86,7 @@ export interface FileRoutesByFullPath {
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/resumos': typeof AuthenticatedResumosRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -91,6 +98,7 @@ export interface FileRoutesByTo {
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/ranking': typeof AuthenticatedRankingRoute
+  '/resumos': typeof AuthenticatedResumosRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -104,6 +112,7 @@ export interface FileRoutesById {
   '/_authenticated/materias': typeof AuthenticatedMateriasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
+  '/_authenticated/resumos': typeof AuthenticatedResumosRoute
   '/_authenticated/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -117,6 +126,7 @@ export interface FileRouteTypes {
     | '/materias'
     | '/painel'
     | '/ranking'
+    | '/resumos'
     | '/admin/questoes'
     | '/admin/usuarios'
   fileRoutesByTo: FileRoutesByTo
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/materias'
     | '/painel'
     | '/ranking'
+    | '/resumos'
     | '/admin/questoes'
     | '/admin/usuarios'
   id:
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/_authenticated/materias'
     | '/_authenticated/painel'
     | '/_authenticated/ranking'
+    | '/_authenticated/resumos'
     | '/_authenticated/admin/questoes'
     | '/_authenticated/admin/usuarios'
   fileRoutesById: FileRoutesById
@@ -209,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRankingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/resumos': {
+      id: '/_authenticated/resumos'
+      path: '/resumos'
+      fullPath: '/resumos'
+      preLoaderRoute: typeof AuthenticatedResumosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/questoes': {
       id: '/_authenticated/admin/questoes'
       path: '/admin/questoes'
@@ -231,6 +250,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMateriasRoute: typeof AuthenticatedMateriasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
+  AuthenticatedResumosRoute: typeof AuthenticatedResumosRoute
   AuthenticatedAdminQuestoesRoute: typeof AuthenticatedAdminQuestoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
@@ -240,6 +260,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMateriasRoute: AuthenticatedMateriasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
+  AuthenticatedResumosRoute: AuthenticatedResumosRoute,
   AuthenticatedAdminQuestoesRoute: AuthenticatedAdminQuestoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
 }
