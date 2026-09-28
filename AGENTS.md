@@ -19,3 +19,4 @@
 - Question images use a private Storage bucket with admin-only writes and signed-in reads, so study illustrations remain account-restricted.
 - Image question intake runs OCR locally in the admin browser and requires review before insertion, keeping source photos private until the admin saves them.
 - Ranking totals are assembled in an authenticated server function with only display names and aggregate counts returned, avoiding exposing individual attempts across accounts.
+- Study filters passed between pages live in typed URL search parameters, preserving browser history and direct navigation.

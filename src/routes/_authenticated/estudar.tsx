@@ -11,6 +11,9 @@ import { QuestionImage } from "@/components/QuestionImage";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
   staticData: { sitemap: false },
+  validateSearch: (search: Record<string, unknown>) => ({
+    subject: typeof search.subject === "string" ? search.subject : undefined,
+  }),
   head: () => ({ meta: [
     { title: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
     { property: "og:title", content: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
@@ -27,6 +30,7 @@ const letters = "ABCDEFGHIJ";
 function Estudar() {
   const qc = useQueryClient();
   const { user } = Route.useRouteContext();
+  const search = Route.useSearch();
   const { data: questions = [], isLoading } = useQuery({
     queryKey: ["questions"],
     queryFn: async () => {
@@ -35,7 +39,7 @@ function Estudar() {
       return data as unknown as Q[];
     },
   });
-  const [subject, setSubject] = useState(ALL);
+  const [subject, setSubject] = useState(search.subject ?? ALL);
   const [topic, setTopic] = useState(ALL);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);

@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate } from "@tanstack/
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   staticData: { sitemap: "exclude-subtree" },
@@ -24,6 +24,14 @@ function Layout() {
   const { isAdmin, user } = Route.useRouteContext();
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const router = Route.useRouter();
+  const goBack = () => {
+    if (router.history.canGoBack()) {
+      router.history.back();
+      return;
+    }
+    navigate({ to: "/painel", replace: true });
+  };
   const signOut = async () => {
     await qc.cancelQueries();
     qc.clear();
@@ -60,10 +68,15 @@ function Layout() {
           </div>
         </aside>
         <section className="min-w-0 flex-1">
-          <header className="flex h-16 items-center justify-between border-b px-5 md:h-20 md:px-8">
-            <div>
+          <header className="flex h-16 items-center justify-between gap-3 border-b px-4 md:h-20 md:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <Button variant="ghost" size="icon" onClick={goBack} aria-label="Voltar à página anterior" title="Voltar">
+                <ArrowLeft />
+              </Button>
+              <div className="min-w-0">
               <p className="font-serif text-base font-semibold">Área de estudos</p>
-              <p className="text-xs text-muted-foreground">Acompanhe seu progresso e continue praticando.</p>
+                <p className="hidden text-xs text-muted-foreground sm:block">Acompanhe seu progresso e continue praticando.</p>
+              </div>
             </div>
             <Button variant="ghost" size="icon" className="md:hidden" onClick={signOut} aria-label="Sair"><LogOut /></Button>
           </header>

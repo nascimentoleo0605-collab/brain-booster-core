@@ -13,3 +13,4 @@
 - [x] Filtrar para refazer somente questões erradas e mostrar sequência de acertos
 - [x] Criar ranking por total de acertos
 - [x] Criar visão de aproveitamento percentual em blocos por matéria
+- [x] Abrir Estudar pela matéria selecionada e preservar o retorno à página anterior
