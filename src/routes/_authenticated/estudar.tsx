@@ -32,7 +32,7 @@ function Estudar() {
   const { user } = Route.useRouteContext();
   const search = Route.useSearch();
   const { data: questions = [], isLoading } = useQuery({
-    queryKey: ["questions"],
+    queryKey: ["questions", "study"],
     queryFn: async () => {
       const { data, error } = await supabase.from("questions").select("*").order("created_at");
       if (error) throw error;

@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/materias")({
 function Materias() {
   const { user } = Route.useRouteContext();
   const { data: questions = [], error: questionsError } = useQuery({
-    queryKey: ["questions"],
+    queryKey: ["questions", "subjects"],
     queryFn: async () => {
       const { data, error } = await supabase.from("questions").select("id, subject, topic");
       if (error) throw error;
