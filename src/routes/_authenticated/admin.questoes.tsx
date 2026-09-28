@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Plus, Trash2, Pencil, X } from "lucide-react";
+import { CsvImport } from "@/components/CsvImport";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   beforeLoad: ({ context }) => { if (!context.isAdmin) throw redirect({ to: "/painel" }); },
@@ -96,6 +97,7 @@ function Questoes() {
       <div className="space-y-3">
         <div className="flex items-center gap-3">
           <h2 className="font-serif text-2xl">Banco ({list.length})</h2>
+          <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
           <Input placeholder="Buscar…" className="ml-auto max-w-xs" value={filter} onChange={(e) => setFilter(e.target.value)} />
         </div>
         {shown.map((q) => (
