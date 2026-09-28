@@ -18,7 +18,8 @@ const letters = "ABCDEF";
 async function extractPdfText(file: File) {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
-  const document = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+  const task = pdfjs.getDocument({ data: await file.arrayBuffer() });
+  const document = await task.promise;
   const pages: string[] = [];
   let ocrWorker: Awaited<ReturnType<typeof import("tesseract.js")["createWorker"]>> | undefined;
 
@@ -50,7 +51,7 @@ async function extractPdfText(file: File) {
     }
     pages.push(pageText);
     page.cleanup();
-  }} finally { await ocrWorker?.terminate(); await document.destroy(); }
+  }} finally { await ocrWorker?.terminate(); await task.destroy(); }
   return pages.join("\n");
 }
 
