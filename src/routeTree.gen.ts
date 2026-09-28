@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticated/estudar'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedAdminQuestoesRouteImport } from './routes/_authenticated/admin.questoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 
@@ -47,6 +48,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
+  id: '/ranking',
+  path: '/ranking',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAdminQuestoesRoute =
   AuthenticatedAdminQuestoesRouteImport.update({
     id: '/admin/questoes',
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -75,6 +82,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/ranking': typeof AuthenticatedRankingRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/estudar': typeof AuthenticatedEstudarRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
 }
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/estudar'
     | '/painel'
+    | '/ranking'
     | '/admin/questoes'
     | '/admin/usuarios'
   fileRoutesByTo: FileRoutesByTo
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/estudar'
     | '/painel'
+    | '/ranking'
     | '/admin/questoes'
     | '/admin/usuarios'
   id:
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/_authenticated/estudar'
     | '/_authenticated/painel'
+    | '/_authenticated/ranking'
     | '/_authenticated/admin/questoes'
     | '/_authenticated/admin/usuarios'
   fileRoutesById: FileRoutesById
@@ -171,6 +183,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/ranking': {
+      id: '/_authenticated/ranking'
+      path: '/ranking'
+      fullPath: '/ranking'
+      preLoaderRoute: typeof AuthenticatedRankingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/questoes': {
       id: '/_authenticated/admin/questoes'
       path: '/admin/questoes'
@@ -191,6 +210,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstudarRoute: typeof AuthenticatedEstudarRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedAdminQuestoesRoute: typeof AuthenticatedAdminQuestoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
 }
@@ -198,6 +218,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstudarRoute: AuthenticatedEstudarRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedAdminQuestoesRoute: AuthenticatedAdminQuestoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
 }
