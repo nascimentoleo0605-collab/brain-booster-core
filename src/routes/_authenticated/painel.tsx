@@ -10,8 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({ meta: [
-    { title: "Desempenho — Caderno" }, { name: "description", content: "Seu desempenho por matéria e assunto." },
-    { property: "og:title", content: "Desempenho — Caderno" }, { property: "og:description", content: "Seu desempenho por matéria e assunto." },
+    { title: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+    { property: "og:title", content: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
   ] }),
   component: Painel,
