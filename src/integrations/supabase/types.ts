@@ -139,14 +139,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      question_ranking: {
-        Args: never
-        Returns: {
-          correct_count: number
-          display_name: string
-          user_id: string
-        }[]
-      }
     }
     Enums: {
       app_role: "admin" | "user"
