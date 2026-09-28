@@ -7,7 +7,6 @@
 - [x] Importação de questões por PDF com reconhecimento e revisão do gabarito
 - [x] Geração automática de 20 ou 30 questões A–D a partir de PDF de matéria
 - [x] Visual minimalista escuro, suave, rápido e prático
-- [ ] Diagnosticar acesso pelo domínio e orientar correção necessária
 - [x] Aceitar PDFs maiores que 20 MB e extrair questões existentes
 - [x] Facilitar cadastro de questões com imagens
 - [x] Mostrar resultado da última tentativa, aviso de acerto/erro e gabarito
