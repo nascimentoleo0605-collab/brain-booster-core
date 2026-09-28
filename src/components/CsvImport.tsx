@@ -54,10 +54,11 @@ function toQuestions(rows: string[][]) {
     const corr = get("correta").toUpperCase();
     const correct_index = /^\d+$/.test(corr) ? Number(corr) - 1 : letters.indexOf(corr);
     const subject = get("materia"), statement = get("enunciado");
-    if (!subject || !statement) return errors.push(`Linha ${line}: matéria e enunciado são obrigatórios.`);
-    if (options.length < 2) return errors.push(`Linha ${line}: mínimo de 2 alternativas.`);
-    if (correct_index < 0 || correct_index >= options.length) return errors.push(`Linha ${line}: resposta correta "${corr}" inválida.`);
+    if (!subject || !statement) { errors.push(`Linha ${line}: matéria e enunciado são obrigatórios.`); return; }
+    if (options.length < 2) { errors.push(`Linha ${line}: mínimo de 2 alternativas.`); return; }
+    if (correct_index < 0 || correct_index >= options.length) { errors.push(`Linha ${line}: resposta correta "${corr}" inválida.`); return; }
     out.push({ subject, topic: get("assunto"), statement, options, correct_index, explanation: get("comentario") });
+    return;
   });
   return { out, errors };
 }
