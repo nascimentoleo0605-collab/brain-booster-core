@@ -28,6 +28,19 @@ type Attempt = { id: string; question_id: string; is_correct: boolean; created_a
 const ALL = "__all";
 const letters = "ABCDEFGHIJ";
 
+function shuffleQuestions<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const current = shuffled[i];
+    const picked = shuffled[j];
+    if (current === undefined || picked === undefined) continue;
+    shuffled[i] = picked;
+    shuffled[j] = current;
+  }
+  return shuffled;
+}
+
 function Estudar() {
   const qc = useQueryClient();
   const { user } = Route.useRouteContext();
@@ -53,7 +66,6 @@ function Estudar() {
       })) as Q[];
     },
   });
-  const questions = Array.isArray(questionData) ? questionData : [];
   const [subject, setSubject] = useState(search.subject ?? ALL);
   const [topic, setTopic] = useState(ALL);
   const [idx, setIdx] = useState(0);
@@ -62,6 +74,11 @@ function Estudar() {
   const [onlyWrong, setOnlyWrong] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reviewingQuestionId, setReviewingQuestionId] = useState<string | null>(null);
+  // Changing filters starts a new run; answering keeps its order stable.
+  const questions = useMemo(
+    () => shuffleQuestions(Array.isArray(questionData) ? questionData : []),
+    [questionData, subject, topic, onlyWrong],
+  );
   const { data: attempts = [] } = useQuery({
     queryKey: ["study-attempts", user.id],
     queryFn: async () => {
