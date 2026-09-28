@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-    { property: "og:title", content: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
-  ] }),
+    { title: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
+    { property: "og:title", content: "Estudar | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
+    { name: "robots", content: "noindex, nofollow" },
+  ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/estudar" }] }),
   component: Estudar,
 });
 

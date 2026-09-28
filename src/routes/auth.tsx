@@ -10,15 +10,16 @@ import { toast } from "sonner";
 import { BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
+  staticData: { sitemap: false },
   head: () => ({
     meta: [
       { title: "Entrar | Caderno de Questões — pratique, revise e evolua" },
-      { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
+      { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
       { property: "og:title", content: "Entrar | Caderno de Questões — pratique, revise e evolua" },
-      { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
+      { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
+      { name: "robots", content: "noindex, nofollow" },
     ],
+    links: [{ rel: "canonical", href: "https://stonehawk.com.br/auth" }],
   }),
   component: AuthPage,
 });

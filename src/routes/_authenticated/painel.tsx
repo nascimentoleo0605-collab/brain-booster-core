@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/painel")({
+  staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-    { property: "og:title", content: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
-  ] }),
+    { title: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Consulte seus resultados e tendências." },
+    { property: "og:title", content: "Desempenho | Caderno de Questões — pratique, revise e evolua" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Consulte seus resultados e tendências." },
+    { name: "robots", content: "noindex, nofollow" },
+  ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/painel" }] }),
   component: Painel,
 });
 

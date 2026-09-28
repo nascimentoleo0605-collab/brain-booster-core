@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { BookOpen, BarChart3, Layers } from "lucide-react";
 
 export const Route = createFileRoute("/")({
+  staticData: { sitemap: true },
   head: () => ({
     meta: [
       { title: "Caderno de Questões — pratique, revise e evolua" },
       { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
       { property: "og:title", content: "Caderno de Questões — pratique, revise e evolua" },
       { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
     ],
+    links: [{ rel: "canonical", href: "https://stonehawk.com.br/" }],
   }),
   component: Index,
 });
