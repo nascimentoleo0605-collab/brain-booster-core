@@ -122,5 +122,6 @@ function Questoes() {
         {shown.length === 0 && <p className="text-muted-foreground">Nenhuma questão.</p>}
       </div>
     </div>
+    </div>
   );
 }
