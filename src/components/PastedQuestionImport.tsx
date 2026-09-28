@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { parsePastedQuestions, type PastedQuestion } from "@/lib/pasted-question-parser";
+import { loadQuestionBank } from "@/lib/question-bank";
 
 const letters = "ABCDEF";
 
@@ -37,9 +38,14 @@ export function PastedQuestionImport({ onDone }: { onDone: () => void }) {
     }
     setSaving(true);
     try {
-      const { data: existing, error: readError } = await supabase.from("questions").select("statement").eq("subject", subject.trim()).eq("topic", topic.trim());
-      if (readError) throw readError;
-      const known = new Set(existing?.map((row) => row.statement) ?? []);
+      const existing = await loadQuestionBank<{ statement: string }>((from, to) => supabase
+        .from("questions")
+        .select("statement")
+        .eq("subject", subject.trim())
+        .eq("topic", topic.trim())
+        .order("created_at")
+        .range(from, to));
+      const known = new Set(existing.map((row) => row.statement));
       const payload = ready.filter((question) => !known.has(question.statement.trim())).map((question) => ({
         subject: subject.trim(), topic: topic.trim(), statement: question.statement.trim(),
         options: question.options.map((option) => option.trim()), correct_index: question.correct_index ?? 0,

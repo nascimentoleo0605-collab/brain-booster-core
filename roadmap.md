@@ -17,3 +17,4 @@
 - [x] Ampliar o reconhecimento de questões e alternativas em PDFs e repetir a leitura com OCR quando necessário
 - [x] Criar aba para gerar resumo por matéria e assunto com IA
 - [x] Admin: colar texto de prova e cadastrar automaticamente questões com alternativas marcadas como certas
+- [x] Ampliar o banco para carregar e administrar até 1.500 questões

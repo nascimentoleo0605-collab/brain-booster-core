@@ -13,6 +13,7 @@ import { PdfImport } from "@/components/PdfImport";
 import { QuestionImage } from "@/components/QuestionImage";
 import { ImageQuestionImport } from "@/components/ImageQuestionImport";
 import { PastedQuestionImport } from "@/components/PastedQuestionImport";
+import { loadQuestionBank, QUESTION_BANK_LIMIT } from "@/lib/question-bank";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   staticData: { sitemap: false },
@@ -36,9 +37,11 @@ function Questoes() {
   const { data: list = [] } = useQuery({
     queryKey: ["questions"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("questions").select("*").order("created_at", { ascending: false });
-      if (error) throw error;
-      return data as unknown as Q[];
+      return loadQuestionBank<Q>((from, to) => supabase
+        .from("questions")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(from, to) as unknown as PromiseLike<{ data: Q[] | null; error: { message: string } | null }>);
     },
   });
   const [form, setForm] = useState(empty);
@@ -89,7 +92,7 @@ function Questoes() {
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card p-4">
       <div>
         <p className="font-serif text-xl">Banco de questões</p>
-        <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez.</p>
+        <p className="text-sm text-muted-foreground">Cadastre uma a uma ou importe várias de uma vez · capacidade de {QUESTION_BANK_LIMIT.toLocaleString("pt-BR")} questões.</p>
       </div>
       <div className="flex flex-wrap gap-2">
         <PastedQuestionImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />

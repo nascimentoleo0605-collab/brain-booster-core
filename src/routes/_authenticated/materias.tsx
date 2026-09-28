@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { loadQuestionBank } from "@/lib/question-bank";
 
 export const Route = createFileRoute("/_authenticated/materias")({
   staticData: { sitemap: false },
@@ -21,9 +22,11 @@ function Materias() {
   const { data: questions = [], error: questionsError } = useQuery({
     queryKey: ["questions", "subjects"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("questions").select("id, subject, topic");
-      if (error) throw error;
-      return data;
+      return loadQuestionBank<{ id: string; subject: string; topic: string }>((from, to) => supabase
+        .from("questions")
+        .select("id, subject, topic")
+        .order("created_at")
+        .range(from, to));
     },
   });
   const { data: attempts = [], error: attemptsError } = useQuery({

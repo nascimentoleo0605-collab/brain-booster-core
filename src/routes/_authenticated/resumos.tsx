@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { generateStudySummary } from "@/lib/study-summary.functions";
+import { loadQuestionBank } from "@/lib/question-bank";
 
 export const Route = createFileRoute("/_authenticated/resumos")({
   staticData: { sitemap: false },
@@ -39,9 +40,11 @@ function Resumos() {
   const { data: classifications = [], isLoading, error } = useQuery({
     queryKey: ["questions", "summary-classifications"],
     queryFn: async () => {
-      const { data, error: queryError } = await supabase.from("questions").select("subject, topic");
-      if (queryError) throw queryError;
-      return data ?? [];
+      return loadQuestionBank<{ subject: string; topic: string }>((from, to) => supabase
+        .from("questions")
+        .select("subject, topic")
+        .order("created_at")
+        .range(from, to));
     },
   });
   const subjects = useMemo(
