@@ -15,4 +15,4 @@
 - [x] Criar visão de aproveitamento percentual em blocos por matéria
 - [x] Abrir Estudar pela matéria selecionada e preservar o retorno à página anterior
 - [x] Ampliar o reconhecimento de questões e alternativas em PDFs e repetir a leitura com OCR quando necessário
-- [ ] Criar aba para gerar resumo por matéria e assunto com IA
+- [x] Criar aba para gerar resumo por matéria e assunto com IA

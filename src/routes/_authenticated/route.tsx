@@ -2,7 +2,7 @@ import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouter } from 
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart3, BookOpen, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, BarChart3, BookOpen, BookMarked, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   staticData: { sitemap: "exclude-subtree" },
@@ -52,6 +52,7 @@ function Layout() {
              <Link to="/painel" aria-label="Desempenho" title="Desempenho" className={link} activeProps={active}><BarChart3 /> <span className="hidden md:inline">Desempenho</span></Link>
               <Link to="/estudar" search={{ subject: undefined }} aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
              <Link to="/materias" aria-label="Matérias" title="Matérias" className={link} activeProps={active}><LayoutGrid /> <span className="hidden md:inline">Matérias</span></Link>
+              <Link to="/resumos" aria-label="Resumos" title="Resumos" className={link} activeProps={active}><BookMarked /> <span className="hidden md:inline">Resumos</span></Link>
              <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>
             {isAdmin && (
               <>
