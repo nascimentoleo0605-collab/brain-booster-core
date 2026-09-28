@@ -64,6 +64,9 @@ function Estudar() {
   const filtered = questions.filter((q) => (subject === ALL || q.subject === subject) && (topic === ALL || q.topic === topic) && (!onlyWrong || latest.get(q.id)?.is_correct === false || (answered && q.id === reviewingQuestionId)));
   const q = filtered[idx % Math.max(filtered.length, 1)];
   const last = q ? latest.get(q.id) : undefined;
+  const displayedLastCorrect = answered && q?.id === reviewingQuestionId && selected !== null
+    ? selected === q.correct_index
+    : last?.is_correct;
 
   const reset = () => { setSelected(null); setAnswered(false); setReviewingQuestionId(null); };
   const answer = async () => {
@@ -116,9 +119,9 @@ function Estudar() {
             <span>{q.subject}{q.topic && ` · ${q.topic}`}</span>
             <span>{(idx % filtered.length) + 1} / {filtered.length}</span>
           </div>
-          {last && <div className={`mb-4 inline-flex items-center gap-2 rounded border px-3 py-1.5 text-sm ${last.is_correct ? "border-chart-2/50 bg-chart-2/10 text-chart-2" : "border-destructive/50 bg-destructive/10 text-destructive"}`}>
-            {last.is_correct ? <Check size={16} /> : <X size={16} />}
-            Última tentativa: {last.is_correct ? "acertou" : "errou"}
+           {(last || answered) && <div className={`mb-4 inline-flex items-center gap-2 rounded border px-3 py-1.5 text-sm ${displayedLastCorrect ? "border-chart-2/50 bg-chart-2/10 text-chart-2" : "border-destructive/50 bg-destructive/10 text-destructive"}`}>
+             {displayedLastCorrect ? <Check size={16} /> : <X size={16} />}
+             Última tentativa: {displayedLastCorrect ? "acertou" : "errou"}
           </div>}
           <p className="whitespace-pre-wrap text-lg leading-relaxed">{q.statement}</p>
           <QuestionImage path={q.image_path} />
