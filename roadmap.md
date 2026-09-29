@@ -20,7 +20,7 @@
 - [x] Ampliar o banco para carregar e administrar até 1.500 questões
 - [x] Embaralhar questões ao estudar, com ou sem filtros, sem mudar a ordem durante a resposta
 - [ ] Renovar painel, filtros, estudo e acesso com explicação curta por IA e contato no WhatsApp
-- [ ] Corrigir a geração de resumos por IA
+- [x] Corrigir a geração de resumos por IA
 - [ ] Tornar os gráficos de desempenho mais claros e interativos
-- [ ] Permitir iniciar o estudo por assunto diretamente em Matérias
-- [ ] Adicionar transições suaves entre páginas e estados
+- [x] Permitir iniciar o estudo por assunto diretamente em Matérias
+- [x] Adicionar transições suaves entre páginas e estados

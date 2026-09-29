@@ -126,6 +126,16 @@
     from { transform: scaleX(0); }
     to { transform: scaleX(1); }
   }
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes answer-in {
+    from { opacity: 0; transform: translateY(5px) scale(0.99); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
   .animate-rise-in { animation: rise-in 280ms ease-out both; }
   .animate-progress-in { animation: progress-in 500ms ease-out both; transform-origin: left; }
+  .animate-page-in { animation: page-in 240ms ease-out both; }
+  .animate-answer-in { animation: answer-in 220ms ease-out both; }
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,7 @@ function Layout() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const router = useRouter();
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
   const goBack = () => {
     if (router.history.canGoBack()) {
       router.history.back();
@@ -81,7 +82,9 @@ function Layout() {
             </div>
             <Button variant="ghost" size="icon" className="md:hidden" onClick={signOut} aria-label="Sair"><LogOut /></Button>
           </header>
-          <main className="mx-auto max-w-6xl px-4 py-6 pb-24 md:px-8 md:py-8 md:pb-8"><Outlet /></main>
+          <main className="mx-auto max-w-6xl px-4 py-6 pb-24 md:px-8 md:py-8 md:pb-8">
+            <div key={pathname} className="animate-page-in"><Outlet /></div>
+          </main>
         </section>
       </div>
     </div>
