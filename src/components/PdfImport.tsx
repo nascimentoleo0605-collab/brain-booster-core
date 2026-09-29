@@ -15,7 +15,7 @@ type ReviewQuestion = PdfQuestion & { subject: string; topic: string };
 type PdfTextItem = { str?: string; transform?: number[]; hasEOL?: boolean };
 const letters = "ABCDEF";
 
-async function extractPdfText(file: File, forceOcr = false) {
+export async function extractPdfText(file: File, forceOcr = false) {
   const pdfjs = await import("pdfjs-dist");
   pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
   const task = pdfjs.getDocument({ data: await file.arrayBuffer() });
