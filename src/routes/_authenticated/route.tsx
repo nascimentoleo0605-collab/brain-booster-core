@@ -56,7 +56,7 @@ function Layout() {
               <Link to="/resumos" aria-label="Resumos" title="Resumos" className={link} activeProps={active}><BookMarked /> <span className="hidden md:inline">Resumos</span></Link>
              <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>
               <Link to="/provao" aria-label="Provão" title="Provão" className={link} activeProps={active}><ClipboardCheck /> <span className="hidden md:inline">Provão</span></Link>
-              <Link to="/ia" aria-label="MEUCBFPM IA" title="MEUCBFPM IA" className={link} activeProps={active}><Sparkles /> <span className="hidden md:inline">MEUCBFPM IA</span></Link>
+              <Link to="/ia" aria-label="Meu Assistente" title="Meu Assistente" className={link} activeProps={active}><Sparkles /> <span className="hidden md:inline">Meu Assistente</span></Link>
             {isAdmin && (
               <>
                  <Link to="/admin/questoes" aria-label="Questões" title="Questões" className={link} activeProps={active}><FileQuestion /> <span className="hidden md:inline">Questões</span></Link>
