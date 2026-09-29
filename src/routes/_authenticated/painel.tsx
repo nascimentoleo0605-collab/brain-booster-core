@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_authenticated/painel")({
   head: () => ({ meta: [
     { title: "Desempenho | MEUCBFPM" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Consulte seus resultados e tendências." },
     { property: "og:title", content: "Desempenho | MEUCBFPM" }, { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Consulte seus resultados e tendências." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
   ], links: [{ rel: "canonical", href: "https://stonehawk.com.br/painel" }] }),
   component: Painel,
@@ -63,7 +64,9 @@ function Painel() {
   const subjects = useMemo(() => [...new Set(data.map((a) => a.questions?.subject ?? "—"))].sort(), [data]);
   const rows = subject === ALL ? data : data.filter((a) => a.questions?.subject === subject);
   const bySubject = group(data, (a) => a.questions?.subject ?? "—");
-  const byTopic = group(rows, (a) => (subject === ALL ? `${a.questions?.subject} · ` : "") + (a.questions?.topic || "Sem assunto"));
+  const byTopic = group(rows, (a) => (subject === ALL ? `${a.questions?.subject} · ` : "") + (a.questions?.topic || "Sem assunto"))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 8);
   const timeline = group(rows, (a) => a.created_at.slice(0, 10))
     .sort((x, y) => x.nome.localeCompare(y.nome))
     .map((d) => ({ ...d, dia: d.nome.slice(8, 10) + "/" + d.nome.slice(5, 7) }));
