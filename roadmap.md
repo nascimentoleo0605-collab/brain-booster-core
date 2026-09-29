@@ -24,3 +24,6 @@
 - [x] Tornar os gráficos de desempenho mais claros e interativos
 - [x] Permitir iniciar o estudo por assunto diretamente em Matérias
 - [x] Adicionar transições suaves entre páginas e estados
+- [ ] Destacar sequência a partir de 5 acertos com fogo animado e feedback mais vivo em acertos e erros
+- [ ] Permitir baixar o resumo criado em PDF
+- [ ] Renovar a apresentação e a interação do ranking
