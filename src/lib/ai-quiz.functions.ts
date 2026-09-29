@@ -24,3 +24,14 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
     const questions = await generateProvaoBatch(apiKey, picked.map((r, i) => ({ ...r, sourceId: `${r.sourceId}-${i}` })));
     return questions.map((x, i) => ({ id: `${i}`, ...x }));
   });
+
+export const generateAiQuizFromMaterial = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ material: z.string().min(200, "O PDF tem pouco texto legível.").max(200_000) }).parse(d))
+  .handler(async ({ data }) => {
+    const apiKey = process.env["LOVABLE_API_KEY"];
+    if (!apiKey) throw new Error("A geração por IA não está configurada.");
+    const { generateFromMaterial } = await import("./ai-quiz.server");
+    const qs = await generateFromMaterial(apiKey, data.material.slice(0, 60_000));
+    return qs.map((x, i) => ({ id: `${i}`, ...x }));
+  });

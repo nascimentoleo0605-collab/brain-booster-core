@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CircleX, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleX, FileUp, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-import { generateAiQuiz } from "@/lib/ai-quiz.functions";
+import { generateAiQuiz, generateAiQuizFromMaterial } from "@/lib/ai-quiz.functions";
 import { loadQuestionBank } from "@/lib/question-bank";
 
 export const Route = createFileRoute("/_authenticated/ia")({
@@ -30,6 +30,9 @@ const ALL = "__all__";
 
 function IaPage() {
   const generate = useServerFn(generateAiQuiz);
+  const generatePdf = useServerFn(generateAiQuizFromMaterial);
+  const [mode, setMode] = useState<"bank" | "pdf">("bank");
+  const [file, setFile] = useState<File | null>(null);
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState(ALL);
   const [questions, setQuestions] = useState<Q[]>([]);
@@ -45,9 +48,18 @@ function IaPage() {
   const right = questions.filter((q, i) => answers[i] === q.correct_index).length;
 
   async function run() {
-    if (!subject) return toast.error("Escolha uma matéria.");
+    if (mode === "bank" && !subject) { toast.error("Escolha uma matéria."); return; }
+    if (mode === "pdf" && !file) { toast.error("Anexe um arquivo PDF."); return; }
+    if (file && file.size > 50 * 1024 * 1024 && mode === "pdf") { toast.error("O PDF deve ter até 50 MB."); return; }
     setLoading(true); setQuestions([]); setAnswers({});
-    try { setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic } })); }
+    try {
+      if (mode === "pdf" && file) {
+        const { extractPdfText } = await import("@/components/PdfImport");
+        const material = (await extractPdfText(file)).trim();
+        if (material.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
+        setQuestions(await generatePdf({ data: { material } }));
+      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic } }));
+    }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível gerar as questões."); }
     finally { setLoading(false); }
   }
@@ -57,8 +69,19 @@ function IaPage() {
       <header>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">Questões inéditas</p>
         <h1 className="font-serif text-2xl font-semibold">MEUCBFPM IA</h1>
-        <p className="text-sm text-muted-foreground">Escolha a matéria e o assunto: a IA cria 10 questões novas com base no banco.</p>
+        <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10 questões novas com base no banco.</p>
       </header>
+      <div className="flex gap-2">
+        <Button variant={mode === "bank" ? "default" : "outline"} size="sm" onClick={() => setMode("bank")}><Sparkles /> Matéria e assunto</Button>
+        <Button variant={mode === "pdf" ? "default" : "outline"} size="sm" onClick={() => setMode("pdf")}><FileUp /> Enviar PDF</Button>
+      </div>
+      {mode === "pdf" ? (
+        <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div className="space-y-1.5"><Label htmlFor="ia-pdf">Material em PDF</Label>
+            <input id="ia-pdf" type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-md border bg-background p-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-primary/15 file:px-3 file:py-1 file:text-primary" /></div>
+          <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
+        </div>
+      ) : (
       <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <div className="space-y-1.5"><Label>Matéria</Label>
           <Select value={subject} onValueChange={(v) => { setSubject(v); setTopic(ALL); }}>
@@ -72,9 +95,10 @@ function IaPage() {
           </Select></div>
         <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
       </div>
+      )}
       {loading && <p className="animate-pulse text-center text-sm text-muted-foreground">A IA está criando suas questões. Isso pode levar até um minuto...</p>}
       {questions.length > 0 && (
-        <p className="text-sm text-muted-foreground">Respondidas {done}/10 · Acertos <span className="font-semibold text-chart-2">{right}</span></p>
+        <p className="text-sm text-muted-foreground">Respondidas {done}/{questions.length} · Acertos <span className="font-semibold text-chart-2">{right}</span></p>
       )}
       {questions.map((q, i) => {
         const sel = answers[i];
@@ -102,9 +126,9 @@ function IaPage() {
           </article>
         );
       })}
-      {done === 10 && questions.length === 10 && (
+      {questions.length > 0 && done === questions.length && (
         <div className="animate-answer-in rounded-lg border bg-card p-4 text-center">
-          <p className="font-serif text-xl font-semibold">Você acertou {right} de 10</p>
+          <p className="font-serif text-xl font-semibold">Você acertou {right} de {questions.length}</p>
           <Button className="mt-3" onClick={run}><RotateCcw /> Gerar novas questões</Button>
         </div>
       )}
