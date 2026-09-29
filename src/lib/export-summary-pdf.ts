@@ -65,7 +65,7 @@ export async function exportSummaryPdf(subject: string, topic: string, summary: 
     const line = rawLine.trim();
     if (!line) { y -= 8; continue; }
     const heading = line.match(/^#{1,6}\s+(.+)$/);
-    if (heading) {
+    if (heading?.[1]) {
       nextPage(46);
       y -= 9;
       draw(heading[1].replace(/\*\*/g, ""), 14, bold, accent, 0, 21);
@@ -73,7 +73,7 @@ export async function exportSummaryPdf(subject: string, topic: string, summary: 
       continue;
     }
     const bullet = line.match(/^(?:[-*•]|\d+[.)])\s+(.+)$/);
-    if (bullet) {
+    if (bullet?.[1]) {
       nextPage(20);
       page.drawCircle({ x: margin + 4, y: y + 3, size: 2, color: accent });
       draw(bullet[1].replace(/\*\*/g, ""), 10.5, regular, ink, 15, 16);

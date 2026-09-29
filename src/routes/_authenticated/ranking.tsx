@@ -57,7 +57,7 @@ function Ranking() {
           {index === 0 && <Sparkles className="hidden size-4 text-chart-3 sm:block" aria-label="Líder" />}<strong className="shrink-0 text-sm tabular-nums text-chart-2">{entry.correct} <span className="hidden font-normal text-muted-foreground sm:inline">{entry.correct === 1 ? "acerto" : "acertos"}</span></strong>
         </div>)}</div>
       </section>
-      {myIndex > 0 && <p className="text-center text-sm text-muted-foreground">{leader - data[myIndex].correct} {leader - data[myIndex].correct === 1 ? "acerto" : "acertos"} até o topo. Cada questão é uma nova chance.</p>}
+      {myIndex > 0 && data[myIndex] && <p className="text-center text-sm text-muted-foreground">{leader - data[myIndex].correct} {leader - data[myIndex].correct === 1 ? "acerto" : "acertos"} até o topo. Cada questão é uma nova chance.</p>}
     </>}
   </div>;
 }
