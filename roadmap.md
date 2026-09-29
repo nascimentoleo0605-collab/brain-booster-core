@@ -18,4 +18,5 @@
 - [x] Criar aba para gerar resumo por matéria e assunto com IA
 - [x] Admin: colar texto de prova e cadastrar automaticamente questões com alternativas marcadas como certas
 - [x] Ampliar o banco para carregar e administrar até 1.500 questões
-- [ ] Embaralhar questões ao estudar, com ou sem filtros, sem mudar a ordem durante a resposta
+- [x] Embaralhar questões ao estudar, com ou sem filtros, sem mudar a ordem durante a resposta
+- [ ] Renovar painel, filtros, estudo e acesso com explicação curta por IA e contato no WhatsApp

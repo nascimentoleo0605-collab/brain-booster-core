@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, LockKeyhole, Mail, MessageCircle } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   staticData: { sitemap: false },
@@ -17,9 +17,11 @@ export const Route = createFileRoute("/auth")({
       { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
       { property: "og:title", content: "Entrar | MEUCBFPM" },
       { property: "og:description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Entre com sua conta para continuar." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
     ],
-    links: [{ rel: "canonical", href: "https://stonehawk.com.br/auth" }],
+    links: [{ rel: "canonical", href: "https://meucbfpm.sbs/auth" }],
   }),
   component: AuthPage,
 });
@@ -60,17 +62,21 @@ function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-sm rounded-lg border bg-card p-7">
-        <div className="mb-8 flex items-center gap-3 font-serif text-xl font-semibold">
-          <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span> MEUCBFPM
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <div className="w-full max-w-md animate-rise-in">
+        <div className="mb-8 flex flex-col items-center text-center">
+          <span className="mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-primary text-primary-foreground"><BookOpen className="h-7 w-7" /></span>
+          <p className="font-serif text-2xl font-semibold">MEU<span className="text-primary">CBFPM</span></p>
+          <p className="mt-2 text-xs font-semibold uppercase text-muted-foreground">Portal do aluno</p>
         </div>
+        <div className="relative overflow-hidden rounded-xl border bg-card/80 p-7">
+          <div className="absolute inset-x-0 top-0 h-0.5 bg-primary/70" />
         {mode === null ? (
           <p className="text-sm text-muted-foreground">Carregando…</p>
         ) : (
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <h1 className="font-serif text-2xl font-semibold">{mode === "setup" ? "Configurar administrador" : "Entrar"}</h1>
+              <h1 className="font-serif text-2xl font-semibold">{mode === "setup" ? "Configurar administrador" : "Acessar plataforma"}</h1>
               <p className="mt-1 text-sm text-muted-foreground">
                 {mode === "setup"
                   ? "Primeiro acesso: crie a conta do administrador."
@@ -85,17 +91,21 @@ function AuthPage() {
             )}
             <div className="space-y-1.5">
               <Label htmlFor="e">E-mail</Label>
-              <Input id="e" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <div className="relative"><Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="h-12 pl-10" id="e" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="p">Senha</Label>
-              <Input id="p" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required />
+                <div className="relative"><LockKeyhole className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><Input className="h-12 pl-10" id="p" type="password" minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
             </div>
             <Button type="submit" className="w-full" disabled={busy}>
-              {busy ? "Aguarde…" : mode === "setup" ? "Criar e entrar" : "Entrar"}
+              {busy ? "Aguarde…" : mode === "setup" ? "Criar e entrar" : <span className="flex items-center justify-center gap-2">Entrar <ArrowRight className="h-4 w-4" /></span>}
             </Button>
           </form>
         )}
+        </div>
+        <a href="https://wa.me/55984679565" target="_blank" rel="noreferrer" className="mx-auto mt-6 flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-primary">
+          <MessageCircle className="h-4 w-4" /> Precisa de ajuda? Fale pelo WhatsApp
+        </a>
       </div>
     </div>
   );

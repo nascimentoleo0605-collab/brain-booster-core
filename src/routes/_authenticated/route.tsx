@@ -38,11 +38,11 @@ function Layout() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
-  const link = "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md px-2 text-sm font-medium text-sidebar-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:justify-start md:px-3";
+  const link = "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md px-2 text-sm font-medium text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:justify-start md:px-3";
   const active = { className: "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md bg-sidebar-accent px-2 text-sm font-medium text-sidebar-accent-foreground md:justify-start md:px-3" };
   return (
     <div className="min-h-screen bg-background p-0 md:p-4">
-      <div className="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden border-border bg-card/30 md:min-h-[calc(100vh-2rem)] md:rounded-lg md:border">
+      <div className="mx-auto flex min-h-screen max-w-[1440px] overflow-hidden border-border bg-card/20 md:min-h-[calc(100vh-2rem)] md:rounded-lg md:border">
         <aside className="fixed inset-x-0 bottom-0 z-30 flex h-16 border-t border-sidebar-border bg-sidebar md:static md:h-auto md:w-56 md:flex-col md:border-r md:border-t-0">
           <Link to="/painel" className="hidden h-20 items-center gap-3 border-b border-sidebar-border px-5 font-serif text-lg font-semibold md:flex">
             <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary text-primary-foreground"><BookOpen className="h-5 w-5" /></span>
@@ -69,7 +69,7 @@ function Layout() {
           </div>
         </aside>
         <section className="min-w-0 flex-1">
-          <header className="flex h-16 items-center justify-between gap-3 border-b px-4 md:h-20 md:px-8">
+          <header className="flex h-16 items-center justify-between gap-3 border-b bg-background/40 px-4 backdrop-blur md:h-20 md:px-8">
             <div className="flex min-w-0 items-center gap-3">
               <Button variant="ghost" size="icon" onClick={goBack} aria-label="Voltar à página anterior" title="Voltar">
                 <ArrowLeft />
