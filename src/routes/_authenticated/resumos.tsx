@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { BookMarked, LoaderCircle, Sparkles } from "lucide-react";
+import { BookMarked, Download, LoaderCircle, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ function Resumos() {
   const [topic, setTopic] = useState(saved?.topic ?? "");
   const [summary, setSummary] = useState(saved?.summary ?? "");
   const [generating, setGenerating] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const { data: classifications = [], isLoading, error } = useQuery({
     queryKey: ["questions", "summary-classifications"],
     queryFn: async () => {
@@ -74,6 +75,19 @@ function Resumos() {
     }
   };
 
+  const downloadPdf = async () => {
+    if (!summary || exporting) return;
+    setExporting(true);
+    try {
+      const { exportSummaryPdf } = await import("@/lib/export-summary-pdf");
+      await exportSummaryPdf(subject, topic, summary);
+    } catch {
+      toast.error("Não foi possível baixar o PDF. Tente novamente.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-7">
       <div>
@@ -107,12 +121,15 @@ function Resumos() {
 
       {summary ? (
         <article className="rounded-lg border bg-card p-5 md:p-8">
-          <div className="mb-6 flex items-start gap-3 border-b pb-5">
+          <div className="mb-6 flex flex-wrap items-start gap-3 border-b pb-5">
             <BookMarked className="mt-0.5 text-primary" />
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold uppercase text-muted-foreground">{subject}</p>
-              <h2 className="mt-1 font-serif text-2xl font-semibold">{topic}</h2>
+              <h2 className="mt-1 break-words font-serif text-2xl font-semibold">{topic}</h2>
             </div>
+            <Button type="button" variant="outline" onClick={downloadPdf} disabled={exporting} aria-label="Baixar resumo em PDF">
+              {exporting ? <LoaderCircle className="animate-spin" /> : <Download />} {exporting ? "Preparando PDF…" : "Baixar PDF"}
+            </Button>
           </div>
           <ReactMarkdown
             components={{
