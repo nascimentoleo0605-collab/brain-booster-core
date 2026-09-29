@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { generateProvaoBatch, type ExamQuestion, type ReferenceQuestion } from "./provao.server";
+import { loadQuestionBank } from "./question-bank";
 
 const uuid = z.string().uuid();
 type SessionRow = { id: string; user_id: string; status: string; questions: unknown; answers: unknown; batch_count: number; score: number | null; created_at: string; completed_at: string | null };
@@ -90,11 +91,13 @@ export const addProvaoBatch = createServerFn({ method: "POST" })
     const module3 = session.batch_count < 4 ? 10 : 5;
     const module1 = session.batch_count === 4 ? 2 : 0;
     const module2 = session.batch_count === 4 ? 3 : 0;
-    const { data: all, error: bankError } = await context.supabase.from("questions")
-      .select("id, subject, topic, statement, options, correct_index, explanation")
-      .order("created_at", { ascending: false }).limit(1500);
-    if (bankError) throw new Error("Não foi possível consultar as questões já cadastradas.");
-    const available = (all ?? []).map(clean).filter((q): q is ReferenceQuestion => q !== null && !existing.some((e) => e.sourceId === q.sourceId));
+    let all;
+    try {
+      all = await loadQuestionBank((from, to) => context.supabase.from("questions")
+        .select("id, subject, topic, statement, options, correct_index, explanation")
+        .order("created_at", { ascending: false }).range(from, to));
+    } catch { throw new Error("Não foi possível consultar as questões já cadastradas."); }
+    const available = all.map(clean).filter((q): q is ReferenceQuestion => q !== null && !existing.some((e) => e.sourceId === q.sourceId));
     const refs = [
       ...spread(available.filter((q) => /^m[oó]dulo\s*3\b/i.test(q.subject)), module3),
       ...spread(available.filter((q) => /^m[oó]dulo\s*1\b/i.test(q.subject)), module1),

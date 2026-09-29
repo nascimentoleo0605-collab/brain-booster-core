@@ -40,8 +40,15 @@ function Provao() {
     try { await action(); } catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível concluir esta ação."); }
     finally { setBusy(false); }
   };
-  const begin = () => run(async () => { update(await start()); setPosition(0); setReviewing(false); setGenerationStarted(true); });
-  const nextBatch = () => run(async () => { if (!session) return; update(await generate({ data: { id: session.id } })); });
+  const generateRemaining = async (id: string, count: number) => {
+    for (let n = count; n < 50; n += 10) update(await generate({ data: { id } }));
+  };
+  const begin = () => run(async () => {
+    const created = await start();
+    update(created); setPosition(0); setReviewing(false); setGenerationStarted(true);
+    await generateRemaining(created.id, created.count);
+  });
+  const nextBatch = () => run(async () => { if (session) await generateRemaining(session.id, session.count); });
   const choose = (choice: number) => run(async () => {
     if (!session) return;
     update(await save({ data: { id: session.id, index: position, selected: choice } }));
@@ -60,7 +67,7 @@ function Provao() {
     const correct = group.filter((r) => r.selectedIndex === r.correctIndex).length;
     return { name, correct, total: group.length, percentage: Math.round(correct / group.length * 100) };
   }).sort((a, b) => a.percentage - b.percentage || b.total - a.total) : [];
-  const advice = performance.filter((r) => r.percentage < 70).slice(0, 3);
+  const advice = performance.filter((r) => r.percentage < 70).sort((a, b) => (b.total * (100 - b.percentage)) - (a.total * (100 - a.percentage))).slice(0, 3);
 
   return <div className="mx-auto max-w-4xl space-y-6 pb-8">
     <header className="border-b pb-6">
@@ -81,10 +88,10 @@ function Provao() {
     </section>}
 
     {session && !done && !ready && <section className="space-y-6 py-4">
-      <div className="flex items-start gap-4"><span className="grid size-12 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Sparkles /></span><div><h2 className="font-serif text-xl font-semibold">Montando seu Provão</h2><p className="mt-1 text-sm text-muted-foreground">Criamos as questões em cinco blocos para guardar cada etapa e permitir continuar depois.</p></div></div>
+      <div className="flex items-start gap-4"><span className="grid size-12 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Sparkles /></span><div><h2 className="font-serif text-xl font-semibold">Montando seu Provão</h2><p className="mt-1 text-sm text-muted-foreground">As questões são criadas em cinco etapas. Você pode voltar depois sem perder o que já foi criado.</p></div></div>
       <div className="h-2 overflow-hidden rounded-sm bg-muted"><div className="h-full bg-primary transition-[width] duration-500" style={{ width: `${questions.length * 2}%` }} /></div>
       <p className="text-sm font-semibold tabular-nums">{questions.length} de 50 questões prontas</p>
-      <Button onClick={nextBatch} disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}{busy ? "Criando 10 questões… Pode levar alguns minutos" : questions.length ? "Criar próximo bloco" : "Criar primeiro bloco"}</Button>
+      <Button onClick={nextBatch} disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}{busy ? "Criando questões… Pode levar alguns minutos" : questions.length ? "Continuar criação" : "Criar questões"}</Button>
       {generationStarted && questions.length === 0 && <p className="text-xs text-muted-foreground">Se sair agora, poderá retomar aqui mesmo.</p>}
     </section>}
 
