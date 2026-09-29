@@ -1,5 +1,5 @@
 import { createOpenAI } from "@ai-sdk/openai";
-import { generateText } from "ai";
+import { streamText } from "ai";
 import { createAiRunIdFetch } from "./ai-run-id.server";
 
 const MODEL = "openai/gpt-6-astra";
@@ -33,13 +33,19 @@ export async function createQuestionExplanation(input: {
   });
 
   try {
-    const { text } = await generateText({
+    const result = streamText({
       model: provider.responses(MODEL),
       system: "Você é um instrutor didático. Responda em português brasileiro, com precisão, sem saudações, sem mencionar IA e sem inventar fatos. Seja breve.",
       prompt: `Explique em no máximo 3 frases por que o gabarito desta questão é correto. Apresente somente o conteúdo necessário para o aluno entender o ponto principal.\n\nQuestão: ${input.statement}\n\nAlternativas:\n${input.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option}`).join("\n")}\n\nGabarito: ${String.fromCharCode(65 + input.correctIndex)}) ${correct}`,
-      providerOptions: { openai: { reasoningEffort: "low", store: false } },
+      providerOptions: { openai: {
+        forceReasoning: true,
+        reasoningEffort: "low",
+        reasoningSummary: "auto",
+        store: false,
+        include: ["reasoning.encrypted_content"],
+      } },
     });
-    const explanation = text.trim();
+    const explanation = (await result.text).trim();
     if (!explanation) throw new Error("A explicação voltou vazia.");
     return explanation;
   } catch (error) {
