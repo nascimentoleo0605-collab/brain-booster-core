@@ -30,8 +30,8 @@ function gatewayError(error: unknown): Error {
     safe = body.message ?? body.error?.message ?? "";
   } catch { /* Invalid upstream error body. */ }
   if (e?.statusCode === 402 || e?.statusCode === 403) return new Error(safe.slice(0, 300) || "A geração por IA está indisponível para este espaço.");
-  if (e?.statusCode === 429) return new Error("Muitas gerações em andamento. Aguarde um pouco e continue o PROVÃO.");
-  if (e?.statusCode && e.statusCode >= 500) return new Error("A IA está temporariamente indisponível. Continue o PROVÃO mais tarde.");
+  if (e?.statusCode === 429) return new Error("Muitas gerações em andamento. Aguarde um pouco e continue o Provão.");
+  if (e?.statusCode && e.statusCode >= 500) return new Error("A IA está temporariamente indisponível. Continue o Provão mais tarde.");
   if (e?.statusCode === 401) return new Error("A geração por IA não está configurada.");
   if (e?.statusCode === 400) return new Error(safe.slice(0, 300) || "A IA não conseguiu processar estas questões.");
   return new Error("A IA não conseguiu gerar este bloco de questões. Continue mais tarde sem perder o progresso.");
@@ -59,8 +59,8 @@ export async function generateProvaoBatch(apiKey: string, references: ReferenceQ
       return { sourceId: reference.sourceId, subject: reference.subject, topic: reference.topic, statement: question.statement.trim(), options: question.options.map((option) => option.trim()), correct_index: question.correct_index, explanation: question.explanation.trim() };
     });
   } catch (error) {
-    if (NoObjectGeneratedError.isInstance(error)) throw new Error("A IA não completou este bloco. Continue o PROVÃO mais tarde.");
-    if (error instanceof Error && ["incomplete", "invalid"].includes(error.message)) throw new Error("A IA não completou este bloco. Continue o PROVÃO mais tarde.");
+    if (NoObjectGeneratedError.isInstance(error)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
+    if (error instanceof Error && ["incomplete", "invalid"].includes(error.message)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
     throw gatewayError(error);
   }
 }

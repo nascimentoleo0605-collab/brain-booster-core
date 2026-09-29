@@ -11,9 +11,9 @@ import { addProvaoBatch, finishProvao, getProvao, saveProvaoAnswer, startProvao 
 export const Route = createFileRoute("/_authenticated/provao")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "PROVÃO | MEUCBFPM" },
+    { title: "Provão | MEUCBFPM" },
     { name: "description", content: "Simulado individual com 50 questões e diagnóstico por matéria no MEUCBFPM." },
-    { property: "og:title", content: "PROVÃO | MEUCBFPM" },
+    { property: "og:title", content: "Provão | MEUCBFPM" },
     { property: "og:description", content: "Simulado individual com 50 questões e diagnóstico por matéria no MEUCBFPM." },
     { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
@@ -65,23 +65,23 @@ function Provao() {
   return <div className="mx-auto max-w-4xl space-y-6 pb-8">
     <header className="border-b pb-6">
       <p className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-chart-3"><Trophy size={16} /> Simulado individual</p>
-      <h1 className="font-serif text-3xl font-bold">PROVÃO</h1>
+      <h1 className="font-serif text-3xl font-bold">Provão</h1>
       <p className="mt-2 text-sm text-muted-foreground">50 questões inéditas · 45 do MÓDULO 3 · 5 dos MÓDULOS 1 e 2</p>
     </header>
 
-    {isPending && <p className="flex items-center gap-2 text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Carregando seu PROVÃO…</p>}
-    {error && <div role="alert" className="text-destructive">Não foi possível carregar seu PROVÃO. Atualize a página para tentar novamente.</div>}
+    {isPending && <p className="flex items-center gap-2 text-muted-foreground"><LoaderCircle className="size-4 animate-spin" /> Carregando seu Provão…</p>}
+    {error && <div role="alert" className="text-destructive">Não foi possível carregar seu Provão. Atualize a página para tentar novamente.</div>}
 
     {!isPending && !error && (!session || (done && reviewing)) && <section className="space-y-4 py-8">
       <div className="flex size-14 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 text-primary"><ClipboardCheck size={30} /></div>
       <h2 className="font-serif text-2xl font-semibold">{session ? "Pronto para outro desafio?" : "Seu simulado começa aqui"}</h2>
       <p className="max-w-2xl text-sm leading-6 text-muted-foreground">As questões são criadas a partir das matérias já cadastradas e variam de um aluno para outro. O gabarito e as recomendações aparecem somente depois de finalizar.</p>
-      <Button onClick={begin} disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{busy ? "Preparando…" : "Criar meu PROVÃO"}</Button>
+      <Button onClick={begin} disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{busy ? "Preparando…" : "Criar meu Provão"}</Button>
       {session && <Button variant="ghost" onClick={() => setReviewing(false)}>Ver resultado anterior</Button>}
     </section>}
 
     {session && !done && !ready && <section className="space-y-6 py-4">
-      <div className="flex items-start gap-4"><span className="grid size-12 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Sparkles /></span><div><h2 className="font-serif text-xl font-semibold">Montando seu PROVÃO</h2><p className="mt-1 text-sm text-muted-foreground">Criamos as questões em cinco blocos para guardar cada etapa e permitir continuar depois.</p></div></div>
+      <div className="flex items-start gap-4"><span className="grid size-12 shrink-0 place-items-center rounded-md bg-primary/10 text-primary"><Sparkles /></span><div><h2 className="font-serif text-xl font-semibold">Montando seu Provão</h2><p className="mt-1 text-sm text-muted-foreground">Criamos as questões em cinco blocos para guardar cada etapa e permitir continuar depois.</p></div></div>
       <div className="h-2 overflow-hidden rounded-sm bg-muted"><div className="h-full bg-primary transition-[width] duration-500" style={{ width: `${questions.length * 2}%` }} /></div>
       <p className="text-sm font-semibold tabular-nums">{questions.length} de 50 questões prontas</p>
       <Button onClick={nextBatch} disabled={busy}>{busy ? <LoaderCircle className="animate-spin" /> : <ArrowRight />}{busy ? "Criando 10 questões… Pode levar alguns minutos" : questions.length ? "Criar próximo bloco" : "Criar primeiro bloco"}</Button>
@@ -108,10 +108,10 @@ function Provao() {
         <div className="grid size-32 place-content-center rounded-lg border border-primary/30 bg-primary/10 text-center"><span className="font-serif text-4xl font-bold tabular-nums text-primary">{(report.score / 5).toFixed(1).replace(".", ",")}</span><span className="text-xs text-muted-foreground">nota de 0 a 10</span></div>
         <div><p className="mb-2 text-xs font-bold uppercase text-primary">Seu desempenho</p><h2 className="font-serif text-2xl font-semibold">{report.score >= 40 ? "Ótimo preparo!" : report.score >= 30 ? "Você está no caminho" : "Hora de reforçar a revisão"}</h2><p className="mt-2 text-sm text-muted-foreground">{report.score} acertos em 50 questões · {Math.round(report.score * 2)}% de aproveitamento. Este resultado é uma estimativa de estudo, não uma previsão da prova oficial.</p></div>
       </section>
-      <section className="space-y-3"><h2 className="flex items-center gap-2 font-serif text-xl font-semibold"><Target className="text-primary" /> Onde focar agora</h2>{advice.length ? <p className="text-sm leading-6 text-muted-foreground">Priorize {advice.map((item) => item.name).join("; ")}. Refaça questões dessas matérias e revise os comentários antes do próximo PROVÃO.</p> : <p className="text-sm text-muted-foreground">Bom equilíbrio entre as matérias! Mantenha a revisão e pratique mais questões do MÓDULO 3.</p>}</section>
+      <section className="space-y-3"><h2 className="flex items-center gap-2 font-serif text-xl font-semibold"><Target className="text-primary" /> Onde focar agora</h2>{advice.length ? <p className="text-sm leading-6 text-muted-foreground">Priorize {advice.map((item) => item.name).join("; ")}. Refaça questões dessas matérias e revise os comentários antes do próximo Provão.</p> : <p className="text-sm text-muted-foreground">Bom equilíbrio entre as matérias! Mantenha a revisão e pratique mais questões do MÓDULO 3.</p>}</section>
       <section className="space-y-4"><h2 className="font-serif text-xl font-semibold">Resultado por matéria</h2>{performance.map((item) => <div key={item.name} className="space-y-1.5 border-b pb-3"><div className="flex items-start justify-between gap-3 text-sm"><span className="min-w-0 break-words">{item.name}</span><strong className="shrink-0 tabular-nums text-primary">{item.percentage}%</strong></div><div className="h-2 overflow-hidden rounded-sm bg-muted"><div className={cn("h-full transition-[width] duration-500", item.percentage < 70 ? "bg-chart-3" : "bg-chart-2")} style={{ width: `${item.percentage}%` }} /></div><p className="text-xs text-muted-foreground">{item.correct} de {item.total} acertos</p></div>)}</section>
       <section className="space-y-4"><h2 className="font-serif text-xl font-semibold">Correção das 50 questões</h2><div className="space-y-3">{report.review.map((item) => <details key={item.number} className="rounded-md border bg-card p-4"><summary className="cursor-pointer text-sm font-semibold">{item.number}. {item.topic} — <span className={item.selectedIndex === item.correctIndex ? "text-chart-2" : "text-destructive"}>{item.selectedIndex === item.correctIndex ? "Acertou" : "Errou"}</span></summary><div className="mt-3 space-y-2 text-sm"><p>{questions[item.number - 1]?.statement}</p><p>Gabarito: <strong>{String.fromCharCode(65 + item.correctIndex)}) {questions[item.number - 1]?.options[item.correctIndex]}</strong></p><p className="text-muted-foreground">{item.explanation}</p></div></details>)}</div></section>
-      <Button onClick={() => setReviewing(true)}><Sparkles /> Criar novo PROVÃO</Button>
+      <Button onClick={() => setReviewing(true)}><Sparkles /> Criar novo Provão</Button>
     </div>}
   </div>;
 }

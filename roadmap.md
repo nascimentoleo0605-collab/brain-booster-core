@@ -28,5 +28,5 @@
 - [x] Permitir baixar o resumo criado em PDF
 - [x] Renovar a apresentação e a interação do ranking
 - [x] Corrigir a sobreposição dos textos no gráfico por assunto do painel
-- [ ] Criar aba PROVÃO com 50 questões individuais geradas a partir do banco, predominância do módulo 3, nota e diagnóstico por matéria
+- [ ] Criar aba Provão com 50 questões individuais geradas a partir do banco, predominância do módulo 3, nota e diagnóstico por matéria
 - [ ] Exibir o nome da aba como “Provão”, sem letras maiúsculas em todo o nome
