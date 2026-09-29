@@ -14,9 +14,9 @@ import { loadQuestionBank } from "@/lib/question-bank";
 export const Route = createFileRoute("/_authenticated/ia")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
-    { title: "MEUCBFPM IA | Questões inéditas" },
+    { title: "Meu Assistente | Questões inéditas" },
     { name: "description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher." },
-    { property: "og:title", content: "MEUCBFPM IA | Questões inéditas" },
+    { property: "og:title", content: "Meu Assistente | Questões inéditas" },
     { property: "og:description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
@@ -68,7 +68,7 @@ function IaPage() {
     <div className="mx-auto max-w-3xl space-y-6">
       <header>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">Questões inéditas</p>
-        <h1 className="font-serif text-2xl font-semibold">MEUCBFPM IA</h1>
+        <h1 className="font-serif text-2xl font-semibold">Meu Assistente</h1>
         <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10 questões novas com base no banco.</p>
       </header>
       <div className="flex gap-2">
