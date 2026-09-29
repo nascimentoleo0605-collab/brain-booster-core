@@ -27,4 +27,4 @@
 - [x] Destacar sequência a partir de 5 acertos com fogo animado e feedback mais vivo em acertos e erros
 - [x] Permitir baixar o resumo criado em PDF
 - [x] Renovar a apresentação e a interação do ranking
-- [ ] Corrigir a sobreposição dos textos no gráfico por assunto do painel
+- [x] Corrigir a sobreposição dos textos no gráfico por assunto do painel

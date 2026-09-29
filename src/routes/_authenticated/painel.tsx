@@ -132,8 +132,8 @@ function Painel() {
           <Card title="Por matéria" subtitle="Compare seu volume de acertos e erros.">
             <Bars data={bySubject} axis={axis} />
           </Card>
-          <Card title={subject === ALL ? "Por assunto" : `Assuntos de ${subject}`} subtitle="Use este gráfico para decidir o próximo treino.">
-            <Bars data={byTopic} axis={axis} />
+           <Card title={subject === ALL ? "Por assunto" : `Assuntos de ${subject}`} subtitle="Use este gráfico para decidir o próximo treino." autoHeight>
+             <TopicBreakdown data={byTopic} />
           </Card>
         </div>
       )}
@@ -157,11 +157,28 @@ function Bars({ data, axis }: { data: any[]; axis: any }) {
   );
 }
 
-function Card({ title, subtitle, children, className = "" }: { title: string; subtitle: string; children: React.ReactNode; className?: string }) {
+function TopicBreakdown({ data }: { data: ReturnType<typeof group> }) {
+  if (data.length === 0) return <p className="py-8 text-sm text-muted-foreground">Nenhuma resposta por assunto neste filtro.</p>;
+  return <div className="space-y-4" role="list" aria-label="Resultados por assunto">
+    {data.map((item) => <div key={item.nome} role="listitem" className="space-y-2">
+      <div className="flex items-start justify-between gap-3 text-sm">
+        <span className="min-w-0 break-words font-medium leading-5">{item.nome}</span>
+        <span className="shrink-0 font-semibold tabular-nums text-chart-2">{item.percentual}%</span>
+      </div>
+      <div className="flex h-2.5 w-full overflow-hidden rounded-sm bg-muted" aria-label={`${item.acertos} acertos e ${item.erros} erros`}>
+        <div className="h-full bg-chart-2 transition-[width] duration-500" style={{ width: `${item.acertos / item.total * 100}%` }} />
+        <div className="h-full bg-destructive transition-[width] duration-500" style={{ width: `${item.erros / item.total * 100}%` }} />
+      </div>
+      <p className="text-xs text-muted-foreground">{item.acertos} {item.acertos === 1 ? "acerto" : "acertos"} · {item.erros} {item.erros === 1 ? "erro" : "erros"}</p>
+    </div>)}
+  </div>;
+}
+
+function Card({ title, subtitle, children, className = "", autoHeight = false }: { title: string; subtitle: string; children: React.ReactNode; className?: string; autoHeight?: boolean }) {
   return (
     <div className={`rounded-lg border bg-card p-5 ${className}`}>
       <div className="mb-5"><h2 className="font-serif text-base font-semibold">{title}</h2><p className="mt-1 text-xs text-muted-foreground">{subtitle}</p></div>
-      <div className="h-72 md:h-80">{children}</div>
+       <div className={autoHeight ? "" : "h-72 md:h-80"}>{children}</div>
     </div>
   );
 }
