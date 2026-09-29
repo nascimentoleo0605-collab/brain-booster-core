@@ -134,7 +134,7 @@ export const finishProvao = createServerFn({ method: "POST" })
     if (!row || row.status !== "draft") throw new Error("PROVÃO não encontrado ou já finalizado.");
     const questions = (Array.isArray(row.questions) ? row.questions : []) as ExamQuestion[];
     const answers = row.answers && typeof row.answers === "object" && !Array.isArray(row.answers) ? row.answers as Record<string, number> : {};
-    if (questions.length !== 50 || Object.keys(answers).length !== 50 || questions.some((q, index) => !Number.isInteger(answers[String(index)]) || answers[String(index)] < 0 || answers[String(index)] > 3 || !Number.isInteger(q.correct_index))) throw new Error("Responda às 50 questões antes de finalizar.");
+    if (questions.length !== 50 || Object.keys(answers).length !== 50 || questions.some((q, index) => { const answer = answers[String(index)]; return answer === undefined || !Number.isInteger(answer) || answer < 0 || answer > 3 || !Number.isInteger(q.correct_index); })) throw new Error("Responda às 50 questões antes de finalizar.");
     const score = questions.filter((q, index) => q.correct_index === answers[String(index)]).length;
     const { data: updated, error } = await supabaseAdmin.from("provao_sessions").update({ status: "completed", score, completed_at: new Date().toISOString() })
       .eq("id", row.id).eq("user_id", context.userId).eq("status", "draft").select().maybeSingle();
