@@ -30,3 +30,4 @@
 - [x] Corrigir a sobreposição dos textos no gráfico por assunto do painel
 - [x] Criar aba Provão com 50 questões individuais geradas a partir do banco, predominância do módulo 3, nota e diagnóstico por matéria
 - [x] Exibir o nome da aba como “Provão”, sem letras maiúsculas em todo o nome
+- [ ] MEUCBFPM IA: gerar 10 questões a partir de PDF enviado pelo aluno
