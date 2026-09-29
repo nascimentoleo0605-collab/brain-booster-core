@@ -65,35 +65,35 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.18 0.012 255);
-  --foreground: oklch(0.925 0.01 250);
-  --card: oklch(0.225 0.014 255);
+  --background: oklch(0.16 0.015 238);
+  --foreground: oklch(0.94 0.012 230);
+  --card: oklch(0.225 0.025 238);
   --card-foreground: oklch(0.925 0.01 250);
   --popover: oklch(0.225 0.014 255);
   --popover-foreground: oklch(0.925 0.01 250);
-  --primary: oklch(0.69 0.055 245);
-  --primary-foreground: oklch(0.18 0.012 255);
-  --secondary: oklch(0.275 0.016 255);
+  --primary: oklch(0.79 0.09 210);
+  --primary-foreground: oklch(0.17 0.02 235);
+  --secondary: oklch(0.28 0.028 235);
   --secondary-foreground: oklch(0.89 0.012 250);
-  --muted: oklch(0.255 0.014 255);
-  --muted-foreground: oklch(0.66 0.025 250);
-  --accent: oklch(0.31 0.027 248);
+  --muted: oklch(0.26 0.024 237);
+  --muted-foreground: oklch(0.69 0.03 225);
+  --accent: oklch(0.32 0.04 225);
   --accent-foreground: oklch(0.92 0.01 250);
   --destructive: oklch(0.64 0.16 25);
   --destructive-foreground: oklch(0.96 0.01 25);
-  --border: oklch(0.32 0.014 255);
-  --input: oklch(0.32 0.014 255);
-  --ring: oklch(0.69 0.055 245);
-  --chart-1: oklch(0.69 0.09 232);
-  --chart-2: oklch(0.71 0.1 155);
+  --border: oklch(0.34 0.025 235);
+  --input: oklch(0.34 0.025 235);
+  --ring: oklch(0.79 0.09 210);
+  --chart-1: oklch(0.79 0.09 210);
+  --chart-2: oklch(0.7 0.12 155);
   --chart-3: oklch(0.72 0.11 75);
   --chart-4: oklch(0.72 0.08 285);
   --chart-5: oklch(0.68 0.12 25);
-  --sidebar: oklch(0.205 0.013 255);
+  --sidebar: oklch(0.19 0.02 238);
   --sidebar-foreground: oklch(0.82 0.016 250);
-  --sidebar-primary: oklch(0.69 0.055 245);
+  --sidebar-primary: oklch(0.79 0.09 210);
   --sidebar-primary-foreground: oklch(0.18 0.012 255);
-  --sidebar-accent: oklch(0.285 0.02 250);
+  --sidebar-accent: oklch(0.29 0.04 225);
   --sidebar-accent-foreground: oklch(0.94 0.01 250);
   --sidebar-border: oklch(0.32 0.014 255);
   --sidebar-ring: oklch(0.69 0.055 245);
@@ -111,7 +111,21 @@
     font-weight: 400;
     letter-spacing: 0;
     text-rendering: optimizeLegibility;
+    min-width: 320px;
   }
 }
 
 .success-text{color:oklch(0.5 0.13 150)}
+
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes progress-in {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  .animate-rise-in { animation: rise-in 280ms ease-out both; }
+  .animate-progress-in { animation: progress-in 500ms ease-out both; transform-origin: left; }
+}
