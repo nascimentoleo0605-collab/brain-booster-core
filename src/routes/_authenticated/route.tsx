@@ -51,7 +51,7 @@ function Layout() {
           </Link>
            <nav className="flex flex-1 items-center justify-around gap-1 overflow-x-auto p-2 md:block md:space-y-1 md:p-3">
              <Link to="/painel" aria-label="Desempenho" title="Desempenho" className={link} activeProps={active}><BarChart3 /> <span className="hidden md:inline">Desempenho</span></Link>
-              <Link to="/estudar" search={{ subject: undefined }} aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
+              <Link to="/estudar" search={{ subject: undefined, topic: undefined }} aria-label="Estudar" title="Estudar" className={link} activeProps={active}><GraduationCap /> <span className="hidden md:inline">Estudar</span></Link>
              <Link to="/materias" aria-label="Matérias" title="Matérias" className={link} activeProps={active}><LayoutGrid /> <span className="hidden md:inline">Matérias</span></Link>
               <Link to="/resumos" aria-label="Resumos" title="Resumos" className={link} activeProps={active}><BookMarked /> <span className="hidden md:inline">Resumos</span></Link>
              <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>

@@ -1,19 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Check, Flame, X } from "lucide-react";
+import { Check, Flame, LoaderCircle, RotateCcw, SlidersHorizontal, Sparkles, Target, X } from "lucide-react";
 import { QuestionImage } from "@/components/QuestionImage";
 import { loadQuestionBank } from "@/lib/question-bank";
+import { generateQuestionExplanation } from "@/lib/question-explanation.functions";
 
 export const Route = createFileRoute("/_authenticated/estudar")({
   staticData: { sitemap: false },
-  validateSearch: (search: Record<string, unknown>): { subject: string | undefined } => ({
+  validateSearch: (search: Record<string, unknown>): { subject: string | undefined; topic: string | undefined } => ({
     subject: typeof search["subject"] === "string" ? search["subject"] : undefined,
+    topic: typeof search["topic"] === "string" ? search["topic"] : undefined,
   }),
   head: () => ({ meta: [
     { title: "Estudar | MEUCBFPM" }, { name: "description", content: "Estude com questões por matéria e assunto, receba correção imediata e acompanhe sua evolução com gráficos de desempenho. Resolva sua próxima questão." },
@@ -45,6 +48,7 @@ function Estudar() {
   const qc = useQueryClient();
   const { user } = Route.useRouteContext();
   const search = Route.useSearch();
+  const requestExplanation = useServerFn(generateQuestionExplanation);
   const { data: questionData, isLoading } = useQuery({
     queryKey: ["questions", "study", "complete"],
     queryFn: async () => {
@@ -67,13 +71,15 @@ function Estudar() {
     },
   });
   const [subject, setSubject] = useState(search.subject ?? ALL);
-  const [topic, setTopic] = useState(ALL);
+  const [topic, setTopic] = useState(search.topic ?? ALL);
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
   const [onlyWrong, setOnlyWrong] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reviewingQuestionId, setReviewingQuestionId] = useState<string | null>(null);
+  const [generatedExplanation, setGeneratedExplanation] = useState("");
+  const [explanationLoading, setExplanationLoading] = useState(false);
   // Changing filters starts a new run; answering keeps its order stable.
   const questions = useMemo(
     () => shuffleQuestions(Array.isArray(questionData) ? questionData : []),
@@ -104,7 +110,19 @@ function Estudar() {
     ? selected === q.correct_index
     : last?.is_correct;
 
-  const reset = () => { setSelected(null); setAnswered(false); setReviewingQuestionId(null); };
+  const reset = () => { setSelected(null); setAnswered(false); setReviewingQuestionId(null); setGeneratedExplanation(""); setExplanationLoading(false); };
+  const explain = async () => {
+    if (!q || selected === q.correct_index || q.explanation || generatedExplanation) return;
+    setExplanationLoading(true);
+    try {
+      const result = await requestExplanation({ data: { questionId: q.id } });
+      setGeneratedExplanation(result.explanation);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Não foi possível gerar a explicação agora.");
+    } finally {
+      setExplanationLoading(false);
+    }
+  };
   const answer = async () => {
     if (selected === null || !q) return;
     setSaving(true);
@@ -121,36 +139,38 @@ function Estudar() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end gap-3">
-        <h1 className="mr-auto font-serif text-3xl">Estudar</h1>
+      <div><h1 className="font-serif text-3xl font-semibold">Estudar</h1><p className="mt-2 text-sm text-muted-foreground">Monte seu treino e acompanhe cada resposta.</p></div>
+      <section className="rounded-lg border bg-card p-4">
+       <div className="mb-3 flex items-center gap-2 text-sm font-semibold"><SlidersHorizontal className="h-4 w-4 text-primary" /> Filtros do treino</div>
+       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
         <Select value={subject} onValueChange={(v) => { setSubject(v); setTopic(ALL); setIdx(0); reset(); }}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Matéria" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Matéria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todas as matérias</SelectItem>
             {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={topic} onValueChange={(v) => { setTopic(v); setIdx(0); reset(); }}>
-          <SelectTrigger className="w-48"><SelectValue placeholder="Assunto" /></SelectTrigger>
+          <SelectTrigger className="w-full"><SelectValue placeholder="Assunto" /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todos os assuntos</SelectItem>
             {topics.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button type="button" variant={onlyWrong ? "default" : "outline"} onClick={() => { setOnlyWrong(!onlyWrong); setIdx(0); reset(); }}>Refazer erros</Button>
+        <Button type="button" variant={onlyWrong ? "default" : "outline"} onClick={() => { setOnlyWrong(!onlyWrong); setIdx(0); reset(); }}><RotateCcw /> Refazer erros</Button>
+       </div>
+       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm text-muted-foreground">
+        <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> {filtered.length} {filtered.length === 1 ? "questão neste treino" : "questões neste treino"}</span>
+        <span className="flex items-center gap-2" aria-label={`Sequência de ${streak} acertos`}><Flame className={streak > 3 ? "text-chart-3" : ""} size={18} />{streak > 3 ? `Sequência flamejante · ${streak}` : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}</span>
       </div>
-
-      <div className="flex items-center justify-end gap-2 text-sm text-muted-foreground" aria-label={`Sequência de ${streak} acertos`}>
-        <Flame className={streak > 3 ? "text-chart-3" : ""} size={18} />
-             <span>{streak > 3 ? `Sequência flamejante · ${streak}` : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}</span>
-      </div>
+      </section>
 
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
       ) : !q ? (
         <div className="rounded-lg border bg-card p-8 text-muted-foreground">{onlyWrong ? "Nenhuma questão errada para refazer." : "Nenhuma questão encontrada."}</div>
       ) : (
-        <div className="rounded-xl border bg-card p-6 md:p-8">
+        <div key={q.id} className="animate-rise-in rounded-xl border bg-card p-6 md:p-8">
           <div className="mb-4 flex justify-between text-sm text-muted-foreground">
             <span>{q.subject}{q.topic && ` · ${q.topic}`}</span>
             <span>{(idx % filtered.length) + 1} / {filtered.length}</span>
@@ -189,12 +209,13 @@ function Estudar() {
               );
             })}
           </div>
-          {answered && (
-             <div role="status" className={cn("mt-6 rounded-lg border p-4", selected === q.correct_index ? "border-chart-2/50 bg-chart-2/10" : "border-destructive/50 bg-destructive/10")}>
+           {answered && (
+             <div role="status" className={cn("animate-answer-in mt-6 rounded-lg border p-4", selected === q.correct_index ? "border-chart-2/50 bg-chart-2/10" : "border-destructive/50 bg-destructive/10")}>
                <p className={cn("font-semibold", selected === q.correct_index ? "text-chart-2" : "text-destructive")}>
                  {selected === q.correct_index ? "Você acertou!" : `Você errou. Resposta correta: ${letters[q.correct_index]}) ${q.options[q.correct_index]}`}
               </p>
-              {q.explanation && <p className="mt-2 whitespace-pre-wrap text-sm">{q.explanation}</p>}
+              {(q.explanation || generatedExplanation) && <p className="mt-3 whitespace-pre-wrap border-t pt-3 text-sm leading-6">{q.explanation || generatedExplanation}</p>}
+              {selected !== q.correct_index && !q.explanation && !generatedExplanation && <Button type="button" variant="outline" size="sm" className="mt-3" onClick={explain} disabled={explanationLoading}>{explanationLoading ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{explanationLoading ? "Preparando explicação…" : "Entender a resposta"}</Button>}
             </div>
           )}
           <div className="mt-6 flex justify-end gap-2">
