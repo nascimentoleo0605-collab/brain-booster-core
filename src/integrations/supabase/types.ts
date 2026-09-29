@@ -70,6 +70,45 @@ export type Database = {
         }
         Relationships: []
       }
+      provao_sessions: {
+        Row: {
+          answers: Json
+          batch_count: number
+          completed_at: string | null
+          created_at: string
+          id: string
+          questions: Json
+          score: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          batch_count?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          questions?: Json
+          score?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          batch_count?: number
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          questions?: Json
+          score?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           correct_index: number
