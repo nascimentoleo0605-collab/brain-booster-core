@@ -16,6 +16,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticated/estudar'
 import { Route as AuthenticatedMateriasRouteImport } from './routes/_authenticated/materias'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
+import { Route as AuthenticatedProvaoRouteImport } from './routes/_authenticated/provao'
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedResumosRouteImport } from './routes/_authenticated/resumos'
 import { Route as AuthenticatedAdminQuestoesRouteImport } from './routes/_authenticated/admin.questoes'
@@ -55,6 +56,11 @@ const AuthenticatedPainelRoute = AuthenticatedPainelRouteImport.update({
   path: '/painel',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedProvaoRoute = AuthenticatedProvaoRouteImport.update({
+  id: '/provao',
+  path: '/provao',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedRankingRoute = AuthenticatedRankingRouteImport.update({
   id: '/ranking',
   path: '/ranking',
@@ -85,6 +91,7 @@ export interface FileRoutesByFullPath {
   '/estudar': typeof AuthenticatedEstudarRoute
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/provao': typeof AuthenticatedProvaoRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/resumos': typeof AuthenticatedResumosRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
@@ -97,6 +104,7 @@ export interface FileRoutesByTo {
   '/estudar': typeof AuthenticatedEstudarRoute
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
+  '/provao': typeof AuthenticatedProvaoRoute
   '/ranking': typeof AuthenticatedRankingRoute
   '/resumos': typeof AuthenticatedResumosRoute
   '/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
@@ -111,6 +119,7 @@ export interface FileRoutesById {
   '/_authenticated/estudar': typeof AuthenticatedEstudarRoute
   '/_authenticated/materias': typeof AuthenticatedMateriasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
+  '/_authenticated/provao': typeof AuthenticatedProvaoRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
   '/_authenticated/resumos': typeof AuthenticatedResumosRoute
   '/_authenticated/admin/questoes': typeof AuthenticatedAdminQuestoesRoute
@@ -125,6 +134,7 @@ export interface FileRouteTypes {
     | '/estudar'
     | '/materias'
     | '/painel'
+    | '/provao'
     | '/ranking'
     | '/resumos'
     | '/admin/questoes'
@@ -137,6 +147,7 @@ export interface FileRouteTypes {
     | '/estudar'
     | '/materias'
     | '/painel'
+    | '/provao'
     | '/ranking'
     | '/resumos'
     | '/admin/questoes'
@@ -150,6 +161,7 @@ export interface FileRouteTypes {
     | '/_authenticated/estudar'
     | '/_authenticated/materias'
     | '/_authenticated/painel'
+    | '/_authenticated/provao'
     | '/_authenticated/ranking'
     | '/_authenticated/resumos'
     | '/_authenticated/admin/questoes'
@@ -214,6 +226,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/provao': {
+      id: '/_authenticated/provao'
+      path: '/provao'
+      fullPath: '/provao'
+      preLoaderRoute: typeof AuthenticatedProvaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ranking': {
       id: '/_authenticated/ranking'
       path: '/ranking'
@@ -249,6 +268,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstudarRoute: typeof AuthenticatedEstudarRoute
   AuthenticatedMateriasRoute: typeof AuthenticatedMateriasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
+  AuthenticatedProvaoRoute: typeof AuthenticatedProvaoRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
   AuthenticatedResumosRoute: typeof AuthenticatedResumosRoute
   AuthenticatedAdminQuestoesRoute: typeof AuthenticatedAdminQuestoesRoute
@@ -259,6 +279,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstudarRoute: AuthenticatedEstudarRoute,
   AuthenticatedMateriasRoute: AuthenticatedMateriasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
+  AuthenticatedProvaoRoute: AuthenticatedProvaoRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
   AuthenticatedResumosRoute: AuthenticatedResumosRoute,
   AuthenticatedAdminQuestoesRoute: AuthenticatedAdminQuestoesRoute,
