@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticated/estudar'
+import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedMateriasRouteImport } from './routes/_authenticated/materias'
 import { Route as AuthenticatedPainelRouteImport } from './routes/_authenticated/painel'
 import { Route as AuthenticatedProvaoRouteImport } from './routes/_authenticated/provao'
@@ -44,6 +45,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const AuthenticatedEstudarRoute = AuthenticatedEstudarRouteImport.update({
   id: '/estudar',
   path: '/estudar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
+  id: '/ia',
+  path: '/ia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMateriasRoute = AuthenticatedMateriasRouteImport.update({
@@ -89,6 +95,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
+  '/ia': typeof AuthenticatedIaRoute
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/provao': typeof AuthenticatedProvaoRoute
@@ -102,6 +109,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/estudar': typeof AuthenticatedEstudarRoute
+  '/ia': typeof AuthenticatedIaRoute
   '/materias': typeof AuthenticatedMateriasRoute
   '/painel': typeof AuthenticatedPainelRoute
   '/provao': typeof AuthenticatedProvaoRoute
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/estudar': typeof AuthenticatedEstudarRoute
+  '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/materias': typeof AuthenticatedMateriasRoute
   '/_authenticated/painel': typeof AuthenticatedPainelRoute
   '/_authenticated/provao': typeof AuthenticatedProvaoRoute
@@ -132,6 +141,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/estudar'
+    | '/ia'
     | '/materias'
     | '/painel'
     | '/provao'
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/estudar'
+    | '/ia'
     | '/materias'
     | '/painel'
     | '/provao'
@@ -159,6 +170,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/estudar'
+    | '/_authenticated/ia'
     | '/_authenticated/materias'
     | '/_authenticated/painel'
     | '/_authenticated/provao'
@@ -210,6 +222,13 @@ declare module '@tanstack/react-router' {
       path: '/estudar'
       fullPath: '/estudar'
       preLoaderRoute: typeof AuthenticatedEstudarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ia': {
+      id: '/_authenticated/ia'
+      path: '/ia'
+      fullPath: '/ia'
+      preLoaderRoute: typeof AuthenticatedIaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/materias': {
@@ -266,6 +285,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstudarRoute: typeof AuthenticatedEstudarRoute
+  AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedMateriasRoute: typeof AuthenticatedMateriasRoute
   AuthenticatedPainelRoute: typeof AuthenticatedPainelRoute
   AuthenticatedProvaoRoute: typeof AuthenticatedProvaoRoute
@@ -277,6 +297,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstudarRoute: AuthenticatedEstudarRoute,
+  AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedMateriasRoute: AuthenticatedMateriasRoute,
   AuthenticatedPainelRoute: AuthenticatedPainelRoute,
   AuthenticatedProvaoRoute: AuthenticatedProvaoRoute,
