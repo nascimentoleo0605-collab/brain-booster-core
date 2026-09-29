@@ -162,7 +162,13 @@ function Estudar() {
        </div>
        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> {filtered.length} {filtered.length === 1 ? "questão neste treino" : "questões neste treino"}</span>
-        <span className="flex items-center gap-2" aria-label={`Sequência de ${streak} acertos`}><Flame className={streak > 3 ? "text-chart-3" : ""} size={18} />{streak > 3 ? `Sequência flamejante · ${streak}` : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}</span>
+         <span className={cn("flex items-center gap-2", streak >= 5 ? "streak-active rounded-md border border-chart-3/40 bg-chart-3/10 px-3 py-2 font-bold text-chart-3" : "")} aria-label={`Sequência de ${streak} acertos`}>
+           <span className={cn("relative grid h-7 w-7 shrink-0 place-items-center", streak >= 5 && "streak-fire")} aria-hidden="true">
+             {streak >= 5 && <><Flame className="streak-flame-back absolute size-6 text-chart-5" fill="currentColor" /><Flame className="streak-flame-front absolute size-5 text-chart-3" fill="currentColor" /></>}
+             {streak < 5 && <Flame className="size-5" />}
+           </span>
+           {streak >= 5 ? <span className="leading-tight">Sequência flamejante <strong className="ml-1 font-serif text-lg tabular-nums">{streak}</strong><span className="block text-xs font-medium opacity-80">acertos seguidos</span></span> : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}
+         </span>
       </div>
       </section>
 
@@ -171,7 +177,7 @@ function Estudar() {
       ) : !q ? (
         <div className="rounded-lg border bg-card p-8 text-muted-foreground">{onlyWrong ? "Nenhuma questão errada para refazer." : "Nenhuma questão encontrada."}</div>
       ) : (
-        <div key={q.id} className="animate-rise-in rounded-xl border bg-card p-6 md:p-8">
+         <div key={q.id} className={cn("animate-rise-in rounded-xl border bg-card p-6 md:p-8", answered && (selected === q.correct_index ? "study-correct" : "study-wrong"))}>
           <div className="mb-4 flex justify-between text-sm text-muted-foreground">
             <span>{q.subject}{q.topic && ` · ${q.topic}`}</span>
             <span>{(idx % filtered.length) + 1} / {filtered.length}</span>
@@ -182,7 +188,7 @@ function Estudar() {
           </div>}
           <p className="whitespace-pre-wrap text-lg leading-relaxed">{q.statement}</p>
           <QuestionImage path={q.image_path} />
-          <div className="mt-6 space-y-2">
+           <div className="relative mt-6 space-y-2">
             {q.options.length < 2 ? (
               <p role="alert" className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
                 Esta questão está sem alternativas válidas. Peça ao administrador para revisá-la.
@@ -200,8 +206,8 @@ function Estudar() {
                     "!h-auto min-h-12 w-full !justify-start whitespace-normal p-3 text-left",
                     !answered && selected === i && "border-primary bg-muted",
                     !answered && "hover:bg-muted",
-                    answered && isCorrect && "border-chart-2 bg-chart-2/10 text-chart-2",
-                    answered && selected === i && !isCorrect && "border-destructive bg-destructive/10",
+                     answered && isCorrect && "study-option-correct border-chart-2 bg-chart-2/10 text-chart-2",
+                     answered && selected === i && !isCorrect && "study-option-wrong border-destructive bg-destructive/10 text-destructive",
                   )}
                 >
                   <span className="font-semibold">{letters[i]})</span>
@@ -211,10 +217,12 @@ function Estudar() {
             })}
           </div>
            {answered && (
-             <div role="status" className={cn("animate-answer-in mt-6 rounded-lg border p-4", selected === q.correct_index ? "border-chart-2/50 bg-chart-2/10" : "border-destructive/50 bg-destructive/10")}>
-               <p className={cn("font-semibold", selected === q.correct_index ? "text-chart-2" : "text-destructive")}>
-                 {selected === q.correct_index ? "Você acertou!" : `Você errou. Resposta correta: ${letters[q.correct_index]}) ${q.options[q.correct_index]}`}
-              </p>
+              <div role="status" className={cn("animate-answer-in mt-6 overflow-hidden rounded-lg border p-4", selected === q.correct_index ? "border-chart-2/50 bg-chart-2/10" : "border-destructive/50 bg-destructive/10")}>
+                <div className="flex items-start gap-3">
+                  <span className={cn("study-result-icon grid size-10 shrink-0 place-items-center rounded-full", selected === q.correct_index ? "bg-chart-2/20 text-chart-2" : "bg-destructive/20 text-destructive")} aria-hidden="true">{selected === q.correct_index ? <Check size={24} strokeWidth={3} /> : <X size={22} strokeWidth={3} />}</span>
+                  <div className="min-w-0"><p className={cn("font-serif text-lg font-semibold", selected === q.correct_index ? "text-chart-2" : "text-destructive")}>{selected === q.correct_index ? "Mandou bem! Você acertou." : "Quase lá! Você errou."}</p>
+                  {selected !== q.correct_index && <p className="mt-1 text-sm leading-relaxed">Resposta correta: <strong>{letters[q.correct_index]}) {q.options[q.correct_index]}</strong></p>}</div>
+                </div>
               {(q.explanation || generatedExplanation) && <p className="mt-3 whitespace-pre-wrap border-t pt-3 text-sm leading-6">{q.explanation || generatedExplanation}</p>}
               {selected !== q.correct_index && !q.explanation && !generatedExplanation && <Button type="button" variant="outline" size="sm" className="mt-3" onClick={explain} disabled={explanationLoading}>{explanationLoading ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{explanationLoading ? "Preparando explicação…" : "Entender a resposta"}</Button>}
             </div>
