@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/ranking")({
 function Ranking() {
   const { user } = Route.useRouteContext();
   const fetchRanking = useServerFn(getRanking);
-  const { data = [], isPending, error } = useQuery({ queryKey: ["ranking"], queryFn: () => fetchRanking() });
+  const { data = [], isPending, error } = useQuery({ queryKey: ["ranking"], queryFn: () => fetchRanking(), staleTime: 0, refetchOnMount: "always", refetchOnWindowFocus: true, refetchInterval: 30_000 });
   const myIndex = data.findIndex((entry) => entry.id === user.id);
   const leader = data[0]?.correct ?? 0;
   const podium = [data[1], data[0], data[2]];
