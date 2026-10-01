@@ -6,13 +6,18 @@ export const getRanking = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     // Cross-user totals need privileged access; authorization is checked above.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const [{ data: profiles, error: profileError }, { data: attempts, error: attemptError }] = await Promise.all([
-      supabaseAdmin.from("profiles").select("id, full_name"),
-      supabaseAdmin.from("attempts").select("user_id").eq("is_correct", true),
-    ]);
-    if (profileError || attemptError) throw new Error("Não foi possível carregar o ranking.");
+    const { data: profiles, error: profileError } = await supabaseAdmin.from("profiles").select("id, full_name");
+    if (profileError) throw new Error("Não foi possível carregar o ranking.");
+    // Every correct attempt counts, including repeats; paginate past the 1,000-row response cap.
     const counts = new Map<string, number>();
-    for (const attempt of attempts ?? []) counts.set(attempt.user_id, (counts.get(attempt.user_id) ?? 0) + 1);
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data: attempts, error } = await supabaseAdmin.from("attempts").select("user_id")
+        .eq("is_correct", true).order("id").range(from, from + PAGE - 1);
+      if (error) throw new Error("Não foi possível carregar o ranking.");
+      for (const attempt of attempts ?? []) counts.set(attempt.user_id, (counts.get(attempt.user_id) ?? 0) + 1);
+      if (!attempts || attempts.length < PAGE) break;
+    }
     return (profiles ?? []).map((profile) => ({
       id: profile.id,
       name: profile.full_name.trim() || "Estudante",
