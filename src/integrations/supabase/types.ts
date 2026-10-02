@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      assistant_attempts: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct: boolean
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       attempts: {
         Row: {
           created_at: string
