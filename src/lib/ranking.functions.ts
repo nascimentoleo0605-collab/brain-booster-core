@@ -8,15 +8,25 @@ export const getRanking = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: profiles, error: profileError } = await supabaseAdmin.from("profiles").select("id, full_name");
     if (profileError) throw new Error("Não foi possível carregar o ranking.");
-    // Every correct attempt counts, including repeats; paginate past the 1,000-row response cap.
+    // Every correct answer counts (bank, Meu Assistente, finished Provões), including repeats.
     const counts = new Map<string, number>();
+    const add = (id: string, n = 1) => counts.set(id, (counts.get(id) ?? 0) + n);
     const PAGE = 1000;
+    for (const table of ["attempts", "assistant_attempts"] as const) {
+      for (let from = 0; ; from += PAGE) {
+        const { data: rows, error } = await supabaseAdmin.from(table).select("user_id")
+          .eq("is_correct", true).order("id").range(from, from + PAGE - 1);
+        if (error) throw new Error("Não foi possível carregar o ranking.");
+        for (const row of rows ?? []) add(row.user_id);
+        if (!rows || rows.length < PAGE) break;
+      }
+    }
     for (let from = 0; ; from += PAGE) {
-      const { data: attempts, error } = await supabaseAdmin.from("attempts").select("user_id")
-        .eq("is_correct", true).order("id").range(from, from + PAGE - 1);
+      const { data: rows, error } = await supabaseAdmin.from("provao_sessions").select("user_id, score")
+        .eq("status", "completed").order("id").range(from, from + PAGE - 1);
       if (error) throw new Error("Não foi possível carregar o ranking.");
-      for (const attempt of attempts ?? []) counts.set(attempt.user_id, (counts.get(attempt.user_id) ?? 0) + 1);
-      if (!attempts || attempts.length < PAGE) break;
+      for (const row of rows ?? []) add(row.user_id, row.score ?? 0);
+      if (!rows || rows.length < PAGE) break;
     }
     return (profiles ?? []).map((profile) => ({
       id: profile.id,
