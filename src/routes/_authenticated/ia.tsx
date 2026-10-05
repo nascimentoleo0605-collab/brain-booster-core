@@ -111,7 +111,7 @@ function IaPage() {
             <div className="space-y-2">
               {q.options.map((o, oi) => {
                 const cls = !answered ? "hover:border-primary" : oi === q.correct_index ? "study-option-correct border-chart-2 bg-chart-2/10" : oi === sel ? "study-option-wrong border-destructive bg-destructive/10" : "opacity-60";
-                return <button key={oi} disabled={answered} onClick={() => { setAnswers((a) => ({ ...a, [i]: oi })); void supabase.from("assistant_attempts").insert({ is_correct: oi === q.correct_index }); }} className={`flex w-full gap-2 rounded-md border p-3 text-left text-sm transition-all ${cls}`}><span className="font-semibold">{String.fromCharCode(65 + oi)})</span>{o}</button>;
+                return <button key={oi} disabled={answered} onClick={() => { setAnswers((a) => ({ ...a, [i]: oi })); void supabase.from("assistant_attempts").insert({ is_correct: oi === q.correct_index, subject: mode === "bank" && subject ? subject : "Meu Assistente (PDF)", topic: q.topic || "" }); }} className={`flex w-full gap-2 rounded-md border p-3 text-left text-sm transition-all ${cls}`}><span className="font-semibold">{String.fromCharCode(65 + oi)})</span>{o}</button>;
               })}
             </div>
             {answered && (

@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { getMyPerformance } from "@/lib/performance.functions";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -65,16 +67,10 @@ function Painel() {
     user.email?.split("@")[0] ||
     "Estudante";
 
+  const fetchPerf = useServerFn(getMyPerformance);
   const { data = [], isLoading } = useQuery({
     queryKey: ["attempts", user.id, period],
-    queryFn: async () => {
-      let q = supabase.from("attempts").select("is_correct, created_at, questions(subject, topic)").eq("user_id", user.id).order("created_at");
-      const days = PERIODS[period]?.days;
-      if (days) q = q.gte("created_at", new Date(Date.now() - days * 864e5).toISOString());
-      const { data, error } = await q;
-      if (error) throw error;
-      return data as unknown as A[];
-    },
+    queryFn: async () => (await fetchPerf({ data: { days: PERIODS[period]?.days ?? null } })) as A[],
   });
 
   const subjects = useMemo(() => [...new Set(data.map((a) => a.questions?.subject ?? "—"))].sort(), [data]);
