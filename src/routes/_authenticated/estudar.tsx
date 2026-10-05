@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Check, Flame, LoaderCircle, RotateCcw, SlidersHorizontal, Sparkles, Target, X } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, Flame, LoaderCircle, RotateCcw, SlidersHorizontal, Sparkles, Target, X } from "lucide-react";
 import { QuestionImage } from "@/components/QuestionImage";
 import { loadQuestionBank } from "@/lib/question-bank";
 import { generateQuestionExplanation } from "@/lib/question-explanation.functions";
@@ -77,6 +77,8 @@ function Estudar() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answered, setAnswered] = useState(false);
   const [onlyWrong, setOnlyWrong] = useState(false);
+  const [onlyNew, setOnlyNew] = useState(false);
+  const [sessionAnswers, setSessionAnswers] = useState<Record<string, number>>({});
   const [saving, setSaving] = useState(false);
   const [reviewingQuestionId, setReviewingQuestionId] = useState<string | null>(null);
   const [generatedExplanation, setGeneratedExplanation] = useState("");
@@ -84,7 +86,7 @@ function Estudar() {
   // Changing filters starts a new run; answering keeps its order stable.
   const questions = useMemo(
     () => shuffleQuestions(Array.isArray(questionData) ? questionData : []),
-    [questionData, subject, topic, onlyWrong],
+    [questionData, subject, topic, onlyWrong, onlyNew],
   );
   const { data: attempts = [] } = useQuery({
     queryKey: ["study-attempts", user.id],
@@ -104,7 +106,10 @@ function Estudar() {
     () => [...new Set(questions.filter((q) => subject === ALL || q.subject === subject).map((q) => q.topic).filter(Boolean))].sort(),
     [questions, subject],
   );
-  const filtered = questions.filter((q) => (subject === ALL || q.subject === subject) && (topic === ALL || q.topic === topic) && (!onlyWrong || latest.get(q.id)?.is_correct === false || (answered && q.id === reviewingQuestionId)));
+  const filtered = questions.filter((q) => (subject === ALL || q.subject === subject) && (topic === ALL || q.topic === topic) && (
+    q.id in sessionAnswers || (answered && q.id === reviewingQuestionId) ||
+    (onlyWrong ? latest.get(q.id)?.is_correct === false : onlyNew ? !latest.has(q.id) : true)
+  ));
   const q = filtered[idx % Math.max(filtered.length, 1)];
   const last = q ? latest.get(q.id) : undefined;
   const displayedLastCorrect = answered && q?.id === reviewingQuestionId && selected !== null
@@ -112,6 +117,14 @@ function Estudar() {
     : last?.is_correct;
 
   const reset = () => { setSelected(null); setAnswered(false); setReviewingQuestionId(null); setGeneratedExplanation(""); setExplanationLoading(false); };
+  const newRun = () => { setIdx(0); setSessionAnswers({}); reset(); };
+  const goTo = (target: number) => {
+    reset();
+    setIdx(target);
+    const next = filtered[target % Math.max(filtered.length, 1)];
+    const previous = next ? sessionAnswers[next.id] : undefined;
+    if (next && previous !== undefined) { setSelected(previous); setAnswered(true); setReviewingQuestionId(next.id); }
+  };
   const explain = async () => {
     if (!q || selected === q.correct_index || q.explanation || generatedExplanation) return;
     setExplanationLoading(true);
@@ -132,6 +145,7 @@ function Estudar() {
     if (error) { toast.error("Não foi possível salvar sua resposta."); return; }
     setReviewingQuestionId(q.id);
     setAnswered(true);
+    setSessionAnswers((prev) => ({ ...prev, [q.id]: selected }));
     qc.invalidateQueries({ queryKey: ["attempts"] });
     qc.invalidateQueries({ queryKey: ["study-attempts", user.id] });
     qc.invalidateQueries({ queryKey: ["ranking"] });
@@ -143,22 +157,23 @@ function Estudar() {
       <div><h1 className="font-serif text-3xl font-semibold">Estudar</h1><p className="mt-2 text-sm text-muted-foreground">Monte seu treino e acompanhe cada resposta.</p></div>
       <section className="rounded-lg border bg-card p-4">
        <div className="mb-3 flex items-center gap-2 text-sm font-semibold"><SlidersHorizontal className="h-4 w-4 text-primary" /> Filtros do treino</div>
-       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto]">
-        <Select value={subject} onValueChange={(v) => { setSubject(v); setTopic(ALL); setIdx(0); reset(); }}>
+       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_auto_auto]">
+        <Select value={subject} onValueChange={(v) => { setSubject(v); setTopic(ALL); newRun(); }}>
           <SelectTrigger className="w-full"><SelectValue placeholder="Matéria" /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todas as matérias</SelectItem>
             {subjects.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Select value={topic} onValueChange={(v) => { setTopic(v); setIdx(0); reset(); }}>
+        <Select value={topic} onValueChange={(v) => { setTopic(v); newRun(); }}>
           <SelectTrigger className="w-full"><SelectValue placeholder="Assunto" /></SelectTrigger>
           <SelectContent>
             <SelectItem value={ALL}>Todos os assuntos</SelectItem>
             {topics.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
           </SelectContent>
         </Select>
-        <Button type="button" variant={onlyWrong ? "default" : "outline"} onClick={() => { setOnlyWrong(!onlyWrong); setIdx(0); reset(); }}><RotateCcw /> Refazer erros</Button>
+        <Button type="button" variant={onlyWrong ? "default" : "outline"} onClick={() => { setOnlyWrong(!onlyWrong); setOnlyNew(false); newRun(); }}><RotateCcw /> Refazer erros</Button>
+        <Button type="button" variant={onlyNew ? "default" : "outline"} onClick={() => { setOnlyNew(!onlyNew); setOnlyWrong(false); newRun(); }}><Sparkles /> Não resolvidas</Button>
        </div>
        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-sm text-muted-foreground">
         <span className="flex items-center gap-2"><Target className="h-4 w-4 text-primary" /> {filtered.length} {filtered.length === 1 ? "questão neste treino" : "questões neste treino"}</span>
@@ -175,7 +190,7 @@ function Estudar() {
       {isLoading ? (
         <p className="text-muted-foreground">Carregando…</p>
       ) : !q ? (
-        <div className="rounded-lg border bg-card p-8 text-muted-foreground">{onlyWrong ? "Nenhuma questão errada para refazer." : "Nenhuma questão encontrada."}</div>
+        <div className="rounded-lg border bg-card p-8 text-muted-foreground">{onlyWrong ? "Nenhuma questão errada para refazer." : onlyNew ? "Você já resolveu todas as questões deste filtro." : "Nenhuma questão encontrada."}</div>
       ) : (
          <div key={q.id} className={cn("animate-rise-in rounded-xl border bg-card p-6 md:p-8", answered && (selected === q.correct_index ? "study-correct" : "study-wrong"))}>
           <div className="mb-4 flex justify-between text-sm text-muted-foreground">
@@ -227,11 +242,12 @@ function Estudar() {
               {selected !== q.correct_index && !q.explanation && !generatedExplanation && <Button type="button" variant="outline" size="sm" className="mt-3" onClick={explain} disabled={explanationLoading}>{explanationLoading ? <LoaderCircle className="animate-spin" /> : <Sparkles />}{explanationLoading ? "Preparando explicação…" : "Entender a resposta"}</Button>}
             </div>
           )}
-          <div className="mt-6 flex justify-end gap-2">
+          <div className="mt-6 flex justify-between gap-2">
+            <Button variant="outline" onClick={() => goTo(idx - 1)} disabled={idx === 0 || saving}><ChevronLeft /> Voltar</Button>
             {!answered ? (
                <Button onClick={answer} disabled={q.options.length < 2 || selected === null || saving}>{saving ? "Salvando…" : "Responder"}</Button>
             ) : (
-               <Button onClick={() => { if (!onlyWrong || selected !== q.correct_index) setIdx((i) => i + 1); reset(); }}>Próxima</Button>
+               <Button onClick={() => goTo(idx + 1)}>Próxima <ChevronRight /></Button>
             )}
           </div>
         </div>
