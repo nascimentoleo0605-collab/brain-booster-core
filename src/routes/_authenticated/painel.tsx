@@ -93,9 +93,45 @@ function Painel() {
   const strongest = [...byTopic].sort((a, b) => b.percentual - a.percentual)[0];
   const axis = { stroke: "var(--muted-foreground)", fontSize: 12 };
 
+  const firstName = displayName.trim().split(/\s+/)[0] || "Estudante";
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  const today = new Intl.DateTimeFormat("pt-BR", { weekday: "long", day: "numeric", month: "long" }).format(new Date());
+  const contextLine = isLoading
+    ? "Preparando seus números…"
+    : total === 0
+      ? "Nenhuma resposta ainda neste período. Escolha um assunto e comece agora — seus gráficos aparecem aqui."
+      : `Você respondeu ${total} ${total === 1 ? "questão" : "questões"} e acertou ${acertos}. ${percentage === 100 ? "Aproveitamento perfeito — siga firme." : percentage >= 70 ? "Você está no caminho certo para o Provão." : "Bora subir esse número: revise os erros abaixo."}`;
+
   return (
     <div className="space-y-6">
+      <section className="animate-greet-in relative overflow-hidden rounded-lg border bg-card/70 p-5 md:p-6">
+        <div className="greet-sweep pointer-events-none absolute -top-28 -left-16 h-56 w-1/2 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-primary via-primary/40 to-transparent" />
+        <div className="relative flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-primary">
+              {timeGreeting} <span className="text-muted-foreground/70">·</span> <span className="normal-case tracking-normal text-muted-foreground">{today}</span>
+            </p>
+            <h1 className="mt-2 font-serif text-3xl font-semibold leading-tight md:text-4xl">
+              Olá,{" "}
+              <span className="greet-name inline-block rounded-md px-1">
+                <span className="bg-gradient-to-r from-primary via-chart-1 to-chart-2 bg-clip-text text-transparent">{firstName}</span>
+              </span>
+            </h1>
+            <p className="mt-3 max-w-xl text-sm text-muted-foreground">{contextLine}</p>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border bg-background/60 px-4 py-3">
+            <span className="flex h-9 w-9 items-center justify-center rounded-md bg-primary/10 text-primary"><Target className="h-4 w-4" /></span>
+            <div>
+              <p className="font-serif text-2xl font-semibold leading-none tabular-nums text-primary">{total ? `${percentage}%` : "—"}</p>
+              <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">aproveitamento</p>
+            </div>
+          </div>
+        </div>
+      </section>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
+
         <div className="mr-auto">
           <p className="mb-2 text-xs font-semibold uppercase text-primary">Visão de desempenho</p>
           <h1 className="font-serif text-3xl font-semibold">Seu progresso em números</h1>
