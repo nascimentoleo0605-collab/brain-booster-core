@@ -51,7 +51,7 @@ function Layout() {
         const { active } = await check();
         if (!active && !stopped) {
           stopped = true;
-          toast.error("Sua conta foi acessada em outro dispositivo. Esta sessão foi encerrada.");
+          toast.error("Sua conta está em uso em mais de 2 dispositivos. Esta sessão foi encerrada.");
           await signOut();
         }
       } catch { /* network hiccup: try again later */ }

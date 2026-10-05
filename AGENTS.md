@@ -25,3 +25,4 @@
 - Pasted question sheets are parsed in the admin browser and reviewed before insertion, keeping source text local until confirmed.
 - Paginate question-bank reads up to 1,500 to bypass the per-request row ceiling.
 - Shuffle questions per filter, not answer. Export summaries as local PDFs with Unicode fonts for privacy and accents.
+- Each account may stay signed in on at most 2 devices; session ids are tracked server-side and the oldest is signed out on check, limiting account sharing.
