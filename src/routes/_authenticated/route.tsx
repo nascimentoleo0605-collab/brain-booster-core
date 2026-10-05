@@ -1,10 +1,6 @@
 import { createFileRoute, Outlet, redirect, Link, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
-import { checkSession } from "@/lib/session-lock.functions";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart3, BookOpen, BookMarked, ClipboardCheck, Sparkles, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
 
@@ -43,25 +39,6 @@ function Layout() {
     await supabase.auth.signOut();
     navigate({ to: "/auth", replace: true });
   };
-  const check = useServerFn(checkSession);
-  useEffect(() => {
-    let stopped = false;
-    const verify = async () => {
-      try {
-        const { active } = await check();
-        if (!active && !stopped) {
-          stopped = true;
-          toast.error("Sua conta foi acessada em outro dispositivo. Esta sessão foi encerrada.");
-          await signOut();
-        }
-      } catch { /* network hiccup: try again later */ }
-    };
-    void verify();
-    const timer = setInterval(verify, 20_000);
-    const onFocus = () => void verify();
-    window.addEventListener("focus", onFocus);
-    return () => { clearInterval(timer); window.removeEventListener("focus", onFocus); };
-  }, [pathname]);
   const link = "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md px-2 text-sm font-medium text-sidebar-foreground transition-all hover:bg-sidebar-accent hover:text-sidebar-accent-foreground md:justify-start md:px-3";
   const active = { className: "flex h-10 min-w-10 items-center justify-center gap-3 rounded-md bg-sidebar-accent px-2 text-sm font-medium text-sidebar-accent-foreground md:justify-start md:px-3" };
   return (
