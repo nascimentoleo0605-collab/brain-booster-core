@@ -49,6 +49,22 @@ function Painel() {
   const [period, setPeriod] = useState("30");
   const [subject, setSubject] = useState(ALL);
 
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle();
+      if (error) throw error;
+      return data?.full_name ?? null;
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const displayName =
+    profile?.trim() ||
+    (typeof user.user_metadata?.full_name === "string" ? user.user_metadata.full_name.trim() : "") ||
+    user.email?.split("@")[0] ||
+    "Estudante";
+
   const { data = [], isLoading } = useQuery({
     queryKey: ["attempts", user.id, period],
     queryFn: async () => {
