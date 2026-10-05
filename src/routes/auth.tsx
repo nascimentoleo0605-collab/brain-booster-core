@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { needsSetup, setupFirstAdmin } from "@/lib/admin.functions";
+import { claimSession } from "@/lib/session-lock.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const checkSetup = useServerFn(needsSetup);
   const setup = useServerFn(setupFirstAdmin);
+  const claim = useServerFn(claimSession);
   const [mode, setMode] = useState<"login" | "setup" | null>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,6 +55,7 @@ function AuthPage() {
       }
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw new Error("E-mail ou senha incorretos.");
+      await claim();
       navigate({ to: "/painel", replace: true });
     } catch (err) {
       toast.error((err as Error).message);
