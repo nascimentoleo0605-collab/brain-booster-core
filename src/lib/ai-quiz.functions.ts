@@ -23,7 +23,9 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("A geração por IA não está configurada.");
     const tagged = picked.map((r, i) => ({ ...r, sourceId: `${r.sourceId}-${i}` }));
     const chunks = Array.from({ length: Math.ceil(tagged.length / 10) }, (_, i) => tagged.slice(i * 10, i * 10 + 10));
-    const questions = (await Promise.all(chunks.map((c) => generateProvaoBatch(apiKey, c)))).flat();
+    const settled = await Promise.allSettled(chunks.map(async (c) => { try { return await generateProvaoBatch(apiKey, c); } catch { return await generateProvaoBatch(apiKey, c); } }));
+    const questions = settled.flatMap((r) => r.status === "fulfilled" ? r.value : []);
+    if (!questions.length) { const failed = settled.find((r) => r.status === "rejected"); throw failed && failed.reason instanceof Error ? failed.reason : new Error("A IA não conseguiu gerar as questões. Tente novamente."); }
     return questions.map((x, i) => ({ id: `${i}`, ...x }));
   });
 
