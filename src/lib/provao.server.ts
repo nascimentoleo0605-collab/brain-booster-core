@@ -52,12 +52,24 @@ export async function generateProvaoBatch(apiKey: string, references: ReferenceQ
       providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
     });
     const parsed = await result.output;
-    if (!parsed || parsed.questions.length !== references.length) throw new Error("incomplete");
-    return references.map((reference, index) => {
-      const question = parsed.questions[index];
-      if (!question || question.sourceId !== reference.sourceId || question.statement.trim().length < 20 || question.options.length !== 4 || question.options.some((option) => !option.trim()) || new Set(question.options.map((option) => option.trim().toLowerCase())).size !== 4 || !Number.isInteger(question.correct_index) || question.correct_index < 0 || question.correct_index > 3 || !question.explanation.trim()) throw new Error("invalid");
-      return { sourceId: reference.sourceId, subject: reference.subject, topic: reference.topic, statement: question.statement.trim(), options: question.options.map((option) => option.trim()), correct_index: question.correct_index, explanation: question.explanation.trim() };
+    if (!parsed || !parsed.questions.length) throw new Error("incomplete");
+    // Be tolerant: match by sourceId (fallback to order), trim to 4 options keeping the correct one.
+    const out: ExamQuestion[] = [];
+    references.forEach((reference, index) => {
+      const question = parsed.questions.find((q) => q.sourceId === reference.sourceId) ?? parsed.questions[index];
+      if (!question || question.statement.trim().length < 10) return;
+      const options = question.options.map((o) => o.trim().replace(/^[A-Ea-e][).:-]\s*/, "")).filter(Boolean);
+      const ci = Math.round(question.correct_index);
+      if (!Number.isInteger(ci) || ci < 0 || ci >= options.length) return;
+      const correct = options[ci]!;
+      const others = [...new Set(options.filter((o, i) => i !== ci && o.toLowerCase() !== correct.toLowerCase()))].slice(0, 3);
+      if (others.length < 3) return;
+      const pos = Math.min(ci, 3);
+      const finalOptions = [...others]; finalOptions.splice(pos, 0, correct);
+      out.push({ sourceId: reference.sourceId, subject: reference.subject, topic: reference.topic, statement: question.statement.trim(), options: finalOptions, correct_index: pos, explanation: question.explanation.trim() || `Resposta correta: ${correct}.` });
     });
+    if (out.length < references.length) throw new Error("incomplete");
+    return out;
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
     if (error instanceof Error && ["incomplete", "invalid"].includes(error.message)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
