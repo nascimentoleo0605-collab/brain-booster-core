@@ -7,7 +7,7 @@ const MODEL = "openai/gpt-6-astra";
 function explanationError(error: unknown) {
   if (!error || typeof error !== "object") return "Não foi possível gerar a explicação agora.";
   const candidate = error as { statusCode?: number; message?: string };
-  if (candidate.statusCode === 402) return "Os créditos de IA acabaram. O responsável pelo espaço precisa adicionar créditos.";
+  if (candidate.statusCode === 402) return "Estamos em atualizações no momento. Tente novamente em breve — seu progresso fica salvo.";
   if (candidate.statusCode === 429) return "Há muitas explicações sendo geradas. Aguarde um pouco e tente novamente.";
   if (candidate.statusCode && candidate.statusCode >= 500) return "A explicação está temporariamente indisponível.";
   return "Não foi possível gerar a explicação agora.";
@@ -40,9 +40,7 @@ export async function createQuestionExplanation(input: {
       providerOptions: { openai: {
         forceReasoning: true,
         reasoningEffort: "low",
-        reasoningSummary: "auto",
         store: false,
-        include: ["reasoning.encrypted_content"],
       } },
     });
     const explanation = (await result.text).trim();

@@ -13,7 +13,7 @@ export async function generateFromMaterial(apiKey: string, material: string, cou
       output: Output.object({ schema }),
       system: "Você é um professor que cria questões inéditas de múltipla escolha em português brasileiro, usando SOMENTE o conteúdo do material fornecido. Cada questão tem exatamente quatro alternativas distintas e uma única correta, e uma explicação curta do gabarito. Entregue sempre o resultado estruturado completo.",
       prompt: `Crie exatamente ${count} questões sobre o material abaixo, cobrindo pontos diferentes. Em "topic" coloque o tema curto da questão. Distribua o gabarito entre A, B, C e D.\n\nMATERIAL:\n${material}`,
-      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
+      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false } },
     });
     const out = await result.output;
     const qs = (out?.questions ?? []).filter((q) => q.statement.trim() && q.options.length === 4 && q.options.every((o) => o.trim()) && Number.isInteger(q.correct_index) && q.correct_index >= 0 && q.correct_index < 4).slice(0, count);

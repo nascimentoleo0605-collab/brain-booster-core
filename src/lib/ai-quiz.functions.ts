@@ -36,6 +36,6 @@ export const generateAiQuizFromMaterial = createServerFn({ method: "POST" })
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("A geração por IA não está configurada.");
     const { generateFromMaterial } = await import("./ai-quiz.server");
-    const qs = await generateFromMaterial(apiKey, data.material.slice(0, 60_000), data.count);
+    const qs = await generateFromMaterial(apiKey, data.material.slice(0, 25_000), data.count);
     return qs.map((x, i) => ({ id: `${i}`, ...x }));
   });
