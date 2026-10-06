@@ -88,7 +88,7 @@ function IaPage() {
         <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <div className="space-y-1.5"><Label htmlFor="ia-pdf">Material em PDF</Label>
             <input id="ia-pdf" type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-md border bg-background p-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-primary/15 file:px-3 file:py-1 file:text-primary" /></div>
-          <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : `Gerar ${count} questões`}</Button>
+          <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
         </div>
       ) : (
       <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -102,7 +102,7 @@ function IaPage() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent><SelectItem value={ALL}>Todos os assuntos</SelectItem>{topics.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
           </Select></div>
-        <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : `Gerar ${count} questões`}</Button>
+        <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
       </div>
       )}
       {loading && <p className="animate-pulse text-center text-sm text-muted-foreground">A IA está criando suas questões. Isso pode levar até um minuto...</p>}
