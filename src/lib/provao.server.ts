@@ -46,8 +46,8 @@ function gatewayMessage(error: unknown): Error {
     const body = JSON.parse(e?.responseBody ?? "{}") as { message?: string; error?: { message?: string } };
     safe = body.message ?? body.error?.message ?? "";
   } catch { /* Invalid upstream error body. */ }
-  if (e?.statusCode === 402) return new Error("Os créditos de IA do site acabaram. Assim que forem recarregados, a geração volta a funcionar — seu progresso fica salvo.");
-  if (e?.statusCode === 403) return new Error(safe.slice(0, 300) || "A geração por IA está indisponível para este espaço.");
+  if (e?.statusCode === 402) return new Error("Estamos em atualizações no momento. Tente novamente em breve — seu progresso fica salvo.");
+  if (e?.statusCode === 403) return new Error("Estamos em atualizações no momento. Tente novamente em breve — seu progresso fica salvo.");
   if (e?.statusCode === 429) return new Error("Muitas gerações em andamento. Aguarde um pouco e continue o Provão.");
   if (e?.statusCode && e.statusCode >= 500) return new Error("A IA está temporariamente indisponível. Continue o Provão mais tarde.");
   if (e?.statusCode === 401) return new Error("A geração por IA não está configurada.");
@@ -67,7 +67,7 @@ export async function generateProvaoBatch(apiKey: string, references: ReferenceQ
       output: Output.object({ schema: outputSchema }),
       system: "Você é um professor que elabora simulados inéditos para formação policial em português brasileiro. Use SOMENTE os conceitos das questões de referência. Preserve a resposta factualmente correta, mas crie enunciados e alternativas novos e autocontidos; não copie o texto original. Não invente leis, números ou fatos não presentes. Produza uma questão para CADA referência, com exatamente quatro alternativas distintas e uma única correta. Dê uma explicação curta e objetiva para o gabarito. Entregue sempre o resultado estruturado completo.",
       prompt: `Reescreva as ${references.length} referências abaixo como ${references.length} questões inéditas, na mesma ordem. Preserve exatamente cada sourceId. Use os conceitos dos gabaritos e comentários. Distribua a posição da resposta correta entre A, B, C e D. Evite ambiguidade.\n\n${references.map((q, i) => `${i + 1}. sourceId: ${q.sourceId}\nMatéria: ${q.subject}; Assunto: ${q.topic}\nEnunciado: ${q.statement}\nAlternativas: ${q.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option}`).join(" | ")}\nResposta correta: ${q.options[q.correct_index]}\nComentário: ${q.explanation || "Sem comentário."}`).join("\n\n")}`,
-      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", reasoningSummary: "auto", store: false, include: ["reasoning.encrypted_content"] } },
+      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false } },
     });
     const parsed = await result.output;
     if (!parsed || !parsed.questions.length) throw new Error("incomplete");
