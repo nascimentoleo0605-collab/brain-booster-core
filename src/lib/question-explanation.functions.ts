@@ -16,6 +16,9 @@ export const generateQuestionExplanation = createServerFn({ method: "POST" })
 
     const saved = typeof question.explanation === "string" ? question.explanation.trim() : "";
     if (saved) return { explanation: saved };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: cached } = await supabaseAdmin.from("ai_cache").select("content").eq("kind", "explanation").eq("cache_key", data.questionId).maybeSingle();
+    if (cached?.content) return { explanation: cached.content };
     const options = Array.isArray(question.options)
       ? question.options.filter((option): option is string => typeof option === "string")
       : [];
@@ -27,5 +30,6 @@ export const generateQuestionExplanation = createServerFn({ method: "POST" })
       options,
       correctIndex: question.correct_index,
     });
+    if (explanation) await supabaseAdmin.from("ai_cache").upsert({ kind: "explanation", cache_key: data.questionId, content: explanation });
     return { explanation };
   });

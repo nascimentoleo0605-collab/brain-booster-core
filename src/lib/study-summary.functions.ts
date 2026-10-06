@@ -23,11 +23,16 @@ export const generateStudySummary = createServerFn({ method: "POST" })
       .limit(40);
     if (error) throw new Error("Não foi possível consultar o conteúdo deste assunto.");
 
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const key = `${data.subject.toLowerCase()}\u0000${data.topic.toLowerCase()}`;
+    const { data: cached } = await supabaseAdmin.from("ai_cache").select("content").eq("kind", "summary").eq("cache_key", key).maybeSingle();
+    if (cached?.content) return { summary: cached.content };
     const summary = await createStudySummary({
       apiKey,
       subject: data.subject,
       topic: data.topic,
       references: references ?? [],
     });
+    if (summary) await supabaseAdmin.from("ai_cache").upsert({ kind: "summary", cache_key: key, content: summary });
     return { summary };
   });
