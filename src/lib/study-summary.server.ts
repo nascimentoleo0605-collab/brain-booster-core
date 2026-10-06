@@ -19,7 +19,7 @@ function gatewayMessage(error: unknown) {
   if (upstreamMessage && upstreamMessage.length <= 300) return upstreamMessage;
   if (candidate.statusCode === 401) return "A geração por IA não está configurada neste momento.";
   if (candidate.statusCode === 402) return "Estamos em atualizações no momento. Tente novamente em breve — seu progresso fica salvo.";
-  if (candidate.statusCode === 403) return "A geração por IA está indisponível para este espaço no momento.";
+  if (candidate.statusCode === 403) return "Estamos em atualizações no momento. Tente novamente em breve.";
   if (candidate.statusCode === 429) return "Há muitas gerações em andamento. Aguarde um pouco e tente novamente.";
   if (candidate.statusCode && candidate.statusCode >= 500) return "O serviço de IA está temporariamente indisponível. Tente novamente mais tarde.";
   if (candidate.message?.includes("No output generated")) return "A IA concluiu a análise sem produzir o resumo. Tente gerar novamente.";
