@@ -57,8 +57,8 @@ function IaPage() {
         const { extractPdfText } = await import("@/components/PdfImport");
         const material = (await extractPdfText(file)).trim();
         if (material.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-        setQuestions(await generatePdf({ data: { material, count } }));
-      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count } }));
+        setQuestions(await generatePdf({ data: { material, count: 10 } }));
+      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count: 10 } }));
     }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível gerar as questões."); }
     finally { setLoading(false); }
@@ -78,12 +78,8 @@ function IaPage() {
       <header>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">Questões inéditas</p>
         <h1 className="font-serif text-2xl font-semibold">Meu Assistente</h1>
-        <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10, 20 ou 30 questões novas com base no banco.</p>
+        <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10 questões novas com base no banco.</p>
       </header>
-      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Quantidade de questões">
-        <span className="text-sm text-muted-foreground">Quantidade:</span>
-        {([10, 20, 30] as const).map((n) => <Button key={n} size="sm" variant={count === n ? "default" : "outline"} disabled={loading} onClick={() => setCount(n)}>{n}</Button>)}
-      </div>
       <div className="flex gap-2">
         <Button variant={mode === "bank" ? "default" : "outline"} size="sm" onClick={() => setMode("bank")}><Sparkles /> Matéria e assunto</Button>
         <Button variant={mode === "pdf" ? "default" : "outline"} size="sm" onClick={() => setMode("pdf")}><FileUp /> Enviar PDF</Button>
