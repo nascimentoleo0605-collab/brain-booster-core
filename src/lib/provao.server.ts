@@ -34,6 +34,11 @@ export function isTerminalAiError(error: unknown) {
   return s === 400 || s === 401 || s === 402 || s === 403;
 }
 export function gatewayError(error: unknown): Error {
+  const out = gatewayMessage(error);
+  (out as Error & { statusCode?: number }).statusCode = unwrap(error)?.statusCode;
+  return out;
+}
+function gatewayMessage(error: unknown): Error {
   const e = unwrap(error);
   let safe = "";
   try {
@@ -83,6 +88,7 @@ export async function generateProvaoBatch(apiKey: string, references: ReferenceQ
     if (out.length < references.length) throw new Error("incomplete");
     return out;
   } catch (error) {
+    if (unwrap(error)?.statusCode) throw gatewayError(error);
     if (NoObjectGeneratedError.isInstance(error)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
     if (error instanceof Error && ["incomplete", "invalid"].includes(error.message)) throw new Error("A IA não completou este bloco. Continue o Provão mais tarde.");
     throw gatewayError(error);
