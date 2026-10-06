@@ -1,8 +1,6 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAiModel } from "./ai-model.server";
 import { streamText } from "ai";
-import { createAiRunIdFetch } from "./ai-run-id.server";
 
-const MODEL = "openai/gpt-6-astra";
 
 function gatewayMessage(error: unknown) {
   if (!error || typeof error !== "object") return "Não foi possível gerar o resumo agora.";
@@ -34,15 +32,7 @@ export async function createStudySummary(input: {
   topic: string;
   references: Array<{ statement: string; explanation: string }>;
 }) {
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey: input.apiKey,
-    headers: {
-      "Lovable-API-Key": input.apiKey,
-      "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-    },
-    fetch: createAiRunIdFetch(),
-  });
+  
   const referenceText = input.references
     .map((item, index) => `${index + 1}. ${item.statement}${item.explanation ? `\nComentário: ${item.explanation}` : ""}`)
     .join("\n\n")
@@ -50,16 +40,9 @@ export async function createStudySummary(input: {
 
   try {
     const result = streamText({
-      model: provider.responses(MODEL),
+      model: createAiModel(input.apiKey),
       system: "Você é um professor didático. Escreva em português brasileiro, com precisão e linguagem clara. Sempre entregue um resumo final em texto, sem saudações, sem mencionar IA e sem inventar referências bibliográficas.",
       prompt: `Crie um resumo de estudo objetivo sobre a matéria “${input.subject}”, assunto “${input.topic}”. O texto final deve ter entre 350 e 650 palavras.\n\nOrganize o texto exatamente nesta ordem, usando títulos Markdown:\n## VISÃO GERAL\n## CONCEITOS PRINCIPAIS\n## PONTOS DE ATENÇÃO\n## REVISÃO RÁPIDA\n\nUse parágrafos curtos e listas quando ajudarem. Explique termos importantes e destaque relações que costumam ser cobradas em questões. Não inclua perguntas de múltipla escolha. É obrigatório produzir a resposta final após analisar as referências.\n\nQuestões e comentários cadastrados como referência de escopo:\n${referenceText || "Nenhuma referência adicional cadastrada."}`,
-      providerOptions: {
-        openai: {
-          forceReasoning: true,
-          reasoningEffort: "low",
-          store: false,
-        },
-      },
     });
     const text = (await result.text).trim();
     if (!text) throw new Error("A IA não retornou conteúdo para este assunto.");

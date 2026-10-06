@@ -1,19 +1,17 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAiModel } from "./ai-model.server";
 import { NoObjectGeneratedError, Output, streamText } from "ai";
 import { z } from "zod";
-import { createAiRunIdFetch } from "./ai-run-id.server";
 
 const schema = z.object({ questions: z.array(z.object({ topic: z.string(), statement: z.string(), options: z.array(z.string()), correct_index: z.number(), explanation: z.string() })) });
 
 export async function generateFromMaterial(apiKey: string, material: string, count = 10) {
-  const provider = createOpenAI({ baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, headers: { "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "vercel-ai-sdk" }, fetch: createAiRunIdFetch() });
+  
   try {
     const result = streamText({
-      model: provider.responses("openai/gpt-6-astra"),
+      model: createAiModel(apiKey),
       output: Output.object({ schema }),
       system: "Você é um professor que cria questões inéditas de múltipla escolha em português brasileiro, usando SOMENTE o conteúdo do material fornecido. Cada questão tem exatamente quatro alternativas distintas e uma única correta, e uma explicação curta do gabarito. Entregue sempre o resultado estruturado completo.",
       prompt: `Crie exatamente ${count} questões sobre o material abaixo, cobrindo pontos diferentes. Em "topic" coloque o tema curto da questão. Distribua o gabarito entre A, B, C e D.\n\nMATERIAL:\n${material}`,
-      providerOptions: { openai: { forceReasoning: true, reasoningEffort: "low", store: false } },
     });
     const out = await result.output;
     const qs = (out?.questions ?? []).filter((q) => q.statement.trim() && q.options.length === 4 && q.options.every((o) => o.trim()) && Number.isInteger(q.correct_index) && q.correct_index >= 0 && q.correct_index < 4).slice(0, count);
