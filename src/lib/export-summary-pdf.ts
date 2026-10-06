@@ -1,5 +1,5 @@
 // This module is loaded only when a student asks to download a summary.
-export async function exportSummaryPdf(subject: string, topic: string, summary: string) {
+export async function exportSummaryPdf(subject: string, topic: string, summary: string, kind = "resumo") {
   const [{ PDFDocument, rgb }, fontkit] = await Promise.all([
     import("pdf-lib"),
     import("@pdf-lib/fontkit"),
@@ -52,7 +52,7 @@ export async function exportSummaryPdf(subject: string, topic: string, summary: 
     }
   };
 
-  draw("MEUCBFPM  /  RESUMOS", 10, bold, accent);
+  draw(`MEUCBFPM  /  ${kind.toLocaleUpperCase("pt-BR")}`, 10, bold, accent);
   y -= 22;
   draw(subject.toLocaleUpperCase("pt-BR"), 10, bold, muted);
   y -= 5;
@@ -93,7 +93,7 @@ export async function exportSummaryPdf(subject: string, topic: string, summary: 
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `MEUCBFPM-resumo-${subject}-${topic}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9-]+/g, "-").slice(0, 100) + ".pdf";
+  link.download = `MEUCBFPM-${kind}-${subject}-${topic}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-zA-Z0-9-]+/g, "-").slice(0, 100) + ".pdf";
   document.body.append(link);
   link.click();
   link.remove();
