@@ -1,8 +1,6 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { createAiModel } from "./ai-model.server";
 import { streamText } from "ai";
-import { createAiRunIdFetch } from "./ai-run-id.server";
 
-const MODEL = "openai/gpt-6-astra";
 
 function explanationError(error: unknown) {
   if (!error || typeof error !== "object") return "Não foi possível gerar a explicação agora.";
@@ -22,26 +20,13 @@ export async function createQuestionExplanation(input: {
   const correct = input.options[input.correctIndex];
   if (!correct) throw new Error("Esta questão não possui um gabarito válido.");
 
-  const provider = createOpenAI({
-    baseURL: "https://ai.gateway.lovable.dev/v1",
-    apiKey: input.apiKey,
-    headers: {
-      "Lovable-API-Key": input.apiKey,
-      "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-    },
-    fetch: createAiRunIdFetch(),
-  });
+  
 
   try {
     const result = streamText({
-      model: provider.responses(MODEL),
+      model: createAiModel(input.apiKey),
       system: "Você é um instrutor didático. Responda em português brasileiro, com precisão, sem saudações, sem mencionar IA e sem inventar fatos. Seja breve.",
       prompt: `Explique em no máximo 3 frases por que o gabarito desta questão é correto. Apresente somente o conteúdo necessário para o aluno entender o ponto principal.\n\nQuestão: ${input.statement}\n\nAlternativas:\n${input.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option}`).join("\n")}\n\nGabarito: ${String.fromCharCode(65 + input.correctIndex)}) ${correct}`,
-      providerOptions: { openai: {
-        forceReasoning: true,
-        reasoningEffort: "low",
-        store: false,
-      } },
     });
     const explanation = (await result.text).trim();
     if (!explanation) throw new Error("A explicação voltou vazia.");
