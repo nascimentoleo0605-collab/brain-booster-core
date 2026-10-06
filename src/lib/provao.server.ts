@@ -35,7 +35,8 @@ export function isTerminalAiError(error: unknown) {
 }
 export function gatewayError(error: unknown): Error {
   const out = gatewayMessage(error);
-  (out as Error & { statusCode?: number }).statusCode = unwrap(error)?.statusCode;
+  const status = unwrap(error)?.statusCode;
+  if (status) Object.assign(out, { statusCode: status });
   return out;
 }
 function gatewayMessage(error: unknown): Error {
