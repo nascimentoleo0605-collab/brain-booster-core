@@ -32,6 +32,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_cache: {
+        Row: {
+          cache_key: string
+          content: string
+          created_at: string
+          kind: string
+        }
+        Insert: {
+          cache_key: string
+          content: string
+          created_at?: string
+          kind: string
+        }
+        Update: {
+          cache_key?: string
+          content?: string
+          created_at?: string
+          kind?: string
+        }
+        Relationships: []
+      }
       assistant_attempts: {
         Row: {
           created_at: string
