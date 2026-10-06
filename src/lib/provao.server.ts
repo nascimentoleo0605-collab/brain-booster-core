@@ -22,14 +22,26 @@ const outputSchema = z.object({ questions: z.array(z.object({
   explanation: z.string(),
 })) });
 
-function gatewayError(error: unknown): Error {
-  const e = error as { statusCode?: number; responseBody?: string; message?: string } | null;
+type ApiErr = { statusCode?: number; responseBody?: string; message?: string; lastError?: unknown; cause?: unknown; errors?: unknown[] } | null;
+function unwrap(error: unknown): ApiErr {
+  let e = error as ApiErr;
+  for (let i = 0; i < 5 && e && !e.statusCode; i++) e = (e.lastError ?? e.cause ?? e.errors?.[e.errors.length - 1] ?? null) as ApiErr;
+  if (!e?.statusCode && /payment required/i.test((error as ApiErr)?.message ?? "")) return { statusCode: 402 };
+  return e?.statusCode ? e : (error as ApiErr);
+}
+export function isTerminalAiError(error: unknown) {
+  const s = unwrap(error)?.statusCode;
+  return s === 400 || s === 401 || s === 402 || s === 403;
+}
+export function gatewayError(error: unknown): Error {
+  const e = unwrap(error);
   let safe = "";
   try {
     const body = JSON.parse(e?.responseBody ?? "{}") as { message?: string; error?: { message?: string } };
     safe = body.message ?? body.error?.message ?? "";
   } catch { /* Invalid upstream error body. */ }
-  if (e?.statusCode === 402 || e?.statusCode === 403) return new Error(safe.slice(0, 300) || "A geração por IA está indisponível para este espaço.");
+  if (e?.statusCode === 402) return new Error("Os créditos de IA do site acabaram. Assim que forem recarregados, a geração volta a funcionar — seu progresso fica salvo.");
+  if (e?.statusCode === 403) return new Error(safe.slice(0, 300) || "A geração por IA está indisponível para este espaço.");
   if (e?.statusCode === 429) return new Error("Muitas gerações em andamento. Aguarde um pouco e continue o Provão.");
   if (e?.statusCode && e.statusCode >= 500) return new Error("A IA está temporariamente indisponível. Continue o Provão mais tarde.");
   if (e?.statusCode === 401) return new Error("A geração por IA não está configurada.");
