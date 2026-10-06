@@ -15,9 +15,9 @@ export const Route = createFileRoute("/_authenticated/ia")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Meu Assistente | Questões inéditas" },
-    { name: "description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher." },
+    { name: "description", content: "Gere 10, 20 ou 30 questões inéditas por IA sobre o assunto que você escolher." },
     { property: "og:title", content: "Meu Assistente | Questões inéditas" },
-    { property: "og:description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher." },
+    { property: "og:description", content: "Gere 10, 20 ou 30 questões inéditas por IA sobre o assunto que você escolher." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
@@ -38,6 +38,7 @@ function IaPage() {
   const [questions, setQuestions] = useState<Q[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
+  const [count, setCount] = useState<10 | 20 | 30>(10);
   const { data: cls = [] } = useQuery({
     queryKey: ["questions", "summary-classifications"],
     queryFn: () => loadQuestionBank<{ subject: string; topic: string }>((f, t) => supabase.from("questions").select("subject, topic").order("created_at").range(f, t)),
@@ -57,8 +58,8 @@ function IaPage() {
         const { extractPdfText } = await import("@/components/PdfImport");
         const material = (await extractPdfText(file)).trim();
         if (material.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-        setQuestions(await generatePdf({ data: { material } }));
-      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic } }));
+        setQuestions(await generatePdf({ data: { material, count } }));
+      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count } }));
     }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível gerar as questões."); }
     finally { setLoading(false); }
@@ -69,7 +70,7 @@ function IaPage() {
       <header>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">Questões inéditas</p>
         <h1 className="font-serif text-2xl font-semibold">Meu Assistente</h1>
-        <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10 questões novas com base no banco.</p>
+        <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10, 20 ou 30 questões novas com base no banco.</p>
       </header>
       <div className="flex gap-2">
         <Button variant={mode === "bank" ? "default" : "outline"} size="sm" onClick={() => setMode("bank")}><Sparkles /> Matéria e assunto</Button>
@@ -79,7 +80,7 @@ function IaPage() {
         <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
           <div className="space-y-1.5"><Label htmlFor="ia-pdf">Material em PDF</Label>
             <input id="ia-pdf" type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-md border bg-background p-2 text-sm file:mr-3 file:rounded file:border-0 file:bg-primary/15 file:px-3 file:py-1 file:text-primary" /></div>
-          <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
+          <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : `Gerar ${count} questões`}</Button>
         </div>
       ) : (
       <div className="grid gap-4 rounded-lg border bg-card p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -93,7 +94,7 @@ function IaPage() {
             <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent><SelectItem value={ALL}>Todos os assuntos</SelectItem>{topics.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
           </Select></div>
-        <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : "Gerar 10 questões"}</Button>
+        <Button onClick={run} disabled={loading}>{loading ? <LoaderCircle className="animate-spin" /> : <Sparkles />} {loading ? "Gerando..." : `Gerar ${count} questões`}</Button>
       </div>
       )}
       {loading && <p className="animate-pulse text-center text-sm text-muted-foreground">A IA está criando suas questões. Isso pode levar até um minuto...</p>}
