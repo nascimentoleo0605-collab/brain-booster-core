@@ -53,6 +53,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_usage: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          kind: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assistant_attempts: {
         Row: {
           created_at: string

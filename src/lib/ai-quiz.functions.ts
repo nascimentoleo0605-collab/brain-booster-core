@@ -1,12 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+const LIMIT_MSG = "Você atingiu o limite de 50 questões por dia no Meu Assistente. Volte amanhã!";
 import { generateProvaoBatch, gatewayError, isTerminalAiError, type ReferenceQuestion } from "./provao.server";
 
 export const generateAiQuiz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ subject: z.string().min(1).max(120), topic: z.string().max(120).nullable(), count: z.union([z.literal(10), z.literal(20), z.literal(30)]).default(10) }).parse(d))
   .handler(async ({ data, context }) => {
+    const lim = await import("./daily-limit.server");
+    await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
     let q = context.supabase.from("questions").select("id,subject,topic,statement,options,correct_index,explanation").eq("subject", data.subject).limit(300);
     if (data.topic) q = q.eq("topic", data.topic);
     const { data: rows, error } = await q;
@@ -26,16 +29,20 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
     const settled = await Promise.allSettled(chunks.map(async (c) => { try { return await generateProvaoBatch(apiKey, c); } catch (e) { if (isTerminalAiError(e)) throw e; return await generateProvaoBatch(apiKey, c); } }));
     const questions = settled.flatMap((r) => r.status === "fulfilled" ? r.value : []);
     if (!questions.length) { const failed = settled.find((r) => r.status === "rejected"); throw failed && failed.reason instanceof Error ? failed.reason : new Error("A IA não conseguiu gerar as questões. Tente novamente."); }
+    await lim.recordUsage(context.userId, "assistant", questions.length);
     return questions.map((x, i) => ({ id: `${i}`, ...x }));
   });
 
 export const generateAiQuizFromMaterial = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ material: z.string().min(200, "O PDF tem pouco texto legível.").max(200_000), count: z.union([z.literal(10), z.literal(20), z.literal(30)]).default(10) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const lim = await import("./daily-limit.server");
+    await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("A geração por IA não está configurada.");
     const { generateFromMaterial } = await import("./ai-quiz.server");
     const qs = await generateFromMaterial(apiKey, data.material.slice(0, 25_000), data.count);
+    await lim.recordUsage(context.userId, "assistant", qs.length);
     return qs.map((x, i) => ({ id: `${i}`, ...x }));
   });
