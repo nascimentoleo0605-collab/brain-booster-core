@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CircleX, FileUp, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleX, FileDown, FileUp, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -65,6 +65,15 @@ function IaPage() {
     finally { setLoading(false); }
   }
 
+  async function exportPdf() {
+    const L = (i: number) => String.fromCharCode(65 + i);
+    const text = questions.map((q, i) => [`## Questão ${i + 1}${q.topic ? ` · ${q.topic}` : ""}`, q.statement, ...q.options.map((o, oi) => `${L(oi)}) ${o}`), "", `**Sua resposta:** ${answers[i] !== undefined ? L(answers[i]!) : "—"} · **Gabarito:** ${L(q.correct_index)}`, `Resolução: ${q.explanation}`, ""].join("\n")).join("\n");
+    try {
+      const { exportSummaryPdf } = await import("@/lib/export-summary-pdf");
+      await exportSummaryPdf(mode === "bank" && subject ? subject : "Material enviado", `${questions.length} questões · ${right} acertos`, text, "questoes");
+    } catch { toast.error("Não foi possível exportar o PDF."); }
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <header>
@@ -72,6 +81,10 @@ function IaPage() {
         <h1 className="font-serif text-2xl font-semibold">Meu Assistente</h1>
         <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10, 20 ou 30 questões novas com base no banco.</p>
       </header>
+      <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Quantidade de questões">
+        <span className="text-sm text-muted-foreground">Quantidade:</span>
+        {([10, 20, 30] as const).map((n) => <Button key={n} size="sm" variant={count === n ? "default" : "outline"} disabled={loading} onClick={() => setCount(n)}>{n}</Button>)}
+      </div>
       <div className="flex gap-2">
         <Button variant={mode === "bank" ? "default" : "outline"} size="sm" onClick={() => setMode("bank")}><Sparkles /> Matéria e assunto</Button>
         <Button variant={mode === "pdf" ? "default" : "outline"} size="sm" onClick={() => setMode("pdf")}><FileUp /> Enviar PDF</Button>
@@ -130,7 +143,7 @@ function IaPage() {
       {questions.length > 0 && done === questions.length && (
         <div className="animate-answer-in rounded-lg border bg-card p-4 text-center">
           <p className="font-serif text-xl font-semibold">Você acertou {right} de {questions.length}</p>
-          <Button className="mt-3" onClick={run}><RotateCcw /> Gerar novas questões</Button>
+          <div className="mt-3 flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={exportPdf}><FileDown /> Exportar questões e resoluções</Button><Button onClick={run}><RotateCcw /> Gerar novas questões</Button></div>
         </div>
       )}
     </div>
