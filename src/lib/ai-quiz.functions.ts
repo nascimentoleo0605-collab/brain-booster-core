@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { generateProvaoBatch, type ReferenceQuestion } from "./provao.server";
+import { generateProvaoBatch, gatewayError, isTerminalAiError, type ReferenceQuestion } from "./provao.server";
 
 export const generateAiQuiz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -23,7 +23,7 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
     if (!apiKey) throw new Error("A geração por IA não está configurada.");
     const tagged = picked.map((r, i) => ({ ...r, sourceId: `${r.sourceId}-${i}` }));
     const chunks = Array.from({ length: Math.ceil(tagged.length / 10) }, (_, i) => tagged.slice(i * 10, i * 10 + 10));
-    const settled = await Promise.allSettled(chunks.map(async (c) => { try { return await generateProvaoBatch(apiKey, c); } catch { return await generateProvaoBatch(apiKey, c); } }));
+    const settled = await Promise.allSettled(chunks.map(async (c) => { try { return await generateProvaoBatch(apiKey, c); } catch (e) { if (isTerminalAiError(e)) throw e; return await generateProvaoBatch(apiKey, c); } }));
     const questions = settled.flatMap((r) => r.status === "fulfilled" ? r.value : []);
     if (!questions.length) { const failed = settled.find((r) => r.status === "rejected"); throw failed && failed.reason instanceof Error ? failed.reason : new Error("A IA não conseguiu gerar as questões. Tente novamente."); }
     return questions.map((x, i) => ({ id: `${i}`, ...x }));

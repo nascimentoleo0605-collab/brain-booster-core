@@ -21,10 +21,8 @@ export async function generateFromMaterial(apiKey: string, material: string, cou
     return qs.map((q) => ({ ...q, subject: "Material enviado", sourceId: "" }));
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) throw new Error("A IA não completou as questões. Tente novamente.");
-    const s = (error as { statusCode?: number })?.statusCode;
-    if (s === 402 || s === 403) throw new Error("A geração por IA está indisponível no momento.");
-    if (s === 429) throw new Error("Muitas gerações em andamento. Aguarde um pouco.");
-    if (error instanceof Error && !s) throw error;
-    throw new Error("A IA está temporariamente indisponível. Tente mais tarde.");
+    const { isTerminalAiError, gatewayError } = await import("./provao.server");
+    if (error instanceof Error && !isTerminalAiError(error) && !(error as { statusCode?: number }).statusCode && /questões/.test(error.message)) throw error;
+    throw gatewayError(error);
   }
 }
