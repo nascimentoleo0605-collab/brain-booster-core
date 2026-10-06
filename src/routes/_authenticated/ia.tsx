@@ -15,9 +15,9 @@ export const Route = createFileRoute("/_authenticated/ia")({
   staticData: { sitemap: false },
   head: () => ({ meta: [
     { title: "Meu Assistente | Questões inéditas" },
-    { name: "description", content: "Gere 10, 20 ou 30 questões inéditas por IA sobre o assunto que você escolher." },
+    { name: "description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher ou envie um PDF." },
     { property: "og:title", content: "Meu Assistente | Questões inéditas" },
-    { property: "og:description", content: "Gere 10, 20 ou 30 questões inéditas por IA sobre o assunto que você escolher." },
+    { property: "og:description", content: "Gere 10 questões inéditas por IA sobre o assunto que você escolher ou envie um PDF." },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary" },
     { name: "robots", content: "noindex, nofollow" },
@@ -38,7 +38,6 @@ function IaPage() {
   const [questions, setQuestions] = useState<Q[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
-  const [count, setCount] = useState<10 | 20 | 30>(10);
   const { data: cls = [] } = useQuery({
     queryKey: ["questions", "summary-classifications"],
     queryFn: () => loadQuestionBank<{ subject: string; topic: string }>((f, t) => supabase.from("questions").select("subject, topic").order("created_at").range(f, t)),
