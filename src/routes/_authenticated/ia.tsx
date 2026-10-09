@@ -5,7 +5,6 @@ import { CheckCircle2, CircleX, FileDown, FileUp, Flame, LoaderCircle, RotateCcw
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
