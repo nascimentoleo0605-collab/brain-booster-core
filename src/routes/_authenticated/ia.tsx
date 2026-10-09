@@ -30,6 +30,7 @@ type Q = Awaited<ReturnType<typeof generateAiQuiz>>[number];
 const ALL = "__all__";
 
 function IaPage() {
+  const { isAdmin } = Route.useRouteContext();
   const generate = useServerFn(generateAiQuiz);
   const generatePdf = useServerFn(generateAiQuizFromMaterial);
   const [mode, setMode] = useState<"bank" | "pdf">("bank");
