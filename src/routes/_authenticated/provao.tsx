@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { ArrowLeft, ArrowRight, CheckCircle2, ClipboardCheck, LoaderCircle, Sparkles, Target, Trophy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AddToBankButton } from "@/components/AddToBankButton";
 import { addProvaoBatch, finishProvao, getProvao, saveProvaoAnswer, startProvao } from "@/lib/provao.functions";
 
 export const Route = createFileRoute("/_authenticated/provao")({
@@ -22,7 +23,7 @@ export const Route = createFileRoute("/_authenticated/provao")({
 });
 
 function Provao() {
-  const { user } = Route.useRouteContext();
+  const { user, isAdmin } = Route.useRouteContext();
   const qc = useQueryClient();
   const get = useServerFn(getProvao);
   const start = useServerFn(startProvao);
@@ -117,7 +118,7 @@ function Provao() {
       </section>
        <section className="space-y-3"><h2 className="flex items-center gap-2 font-serif text-xl font-semibold"><Target className="text-primary" /> Onde focar agora</h2>{advice.length ? <p className="text-sm leading-6 text-muted-foreground">Priorize {advice.map((item) => item.name).join("; ")}. Refaça questões dessas matérias e revise os comentários antes do próximo Provão.</p> : <p className="text-sm text-muted-foreground">Bom equilíbrio entre as matérias com mais questões! Mantenha a revisão e pratique mais questões do MÓDULO 3.</p>}</section>
       <section className="space-y-4"><h2 className="font-serif text-xl font-semibold">Resultado por matéria</h2>{performance.map((item) => <div key={item.name} className="space-y-1.5 border-b pb-3"><div className="flex items-start justify-between gap-3 text-sm"><span className="min-w-0 break-words">{item.name}</span><strong className="shrink-0 tabular-nums text-primary">{item.percentage}%</strong></div><div className="h-2 overflow-hidden rounded-sm bg-muted"><div className={cn("h-full transition-[width] duration-500", item.percentage < 70 ? "bg-chart-3" : "bg-chart-2")} style={{ width: `${item.percentage}%` }} /></div><p className="text-xs text-muted-foreground">{item.correct} de {item.total} acertos</p></div>)}</section>
-      <section className="space-y-4"><h2 className="font-serif text-xl font-semibold">Correção das 50 questões</h2><div className="space-y-3">{report.review.map((item) => <details key={item.number} className="rounded-md border bg-card p-4"><summary className="cursor-pointer text-sm font-semibold">{item.number}. {item.topic} — <span className={item.selectedIndex === item.correctIndex ? "text-chart-2" : "text-destructive"}>{item.selectedIndex === item.correctIndex ? "Acertou" : "Errou"}</span></summary><div className="mt-3 space-y-2 text-sm"><p>{questions[item.number - 1]?.statement}</p><p>Gabarito: <strong>{String.fromCharCode(65 + item.correctIndex)}) {questions[item.number - 1]?.options[item.correctIndex]}</strong></p><p className="text-muted-foreground">{item.explanation}</p></div></details>)}</div></section>
+      <section className="space-y-4"><h2 className="font-serif text-xl font-semibold">Correção das 50 questões</h2><div className="space-y-3">{report.review.map((item) => <details key={item.number} className="rounded-md border bg-card p-4"><summary className="cursor-pointer text-sm font-semibold">{item.number}. {item.topic} — <span className={item.selectedIndex === item.correctIndex ? "text-chart-2" : "text-destructive"}>{item.selectedIndex === item.correctIndex ? "Acertou" : "Errou"}</span></summary><div className="mt-3 space-y-2 text-sm"><p>{questions[item.number - 1]?.statement}</p><p>Gabarito: <strong>{String.fromCharCode(65 + item.correctIndex)}) {questions[item.number - 1]?.options[item.correctIndex]}</strong></p><p className="text-muted-foreground">{item.explanation}</p>{isAdmin && questions[item.number - 1] && <AddToBankButton subject={item.subject} topic={item.topic} statement={questions[item.number - 1]!.statement} options={questions[item.number - 1]!.options} correctIndex={item.correctIndex} explanation={item.explanation} />}</div></details>)}</div></section>
       <Button onClick={() => setReviewing(true)}><Sparkles /> Criar novo Provão</Button>
     </div>}
   </div>;

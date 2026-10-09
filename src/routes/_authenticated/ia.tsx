@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { generateAiQuiz, generateAiQuizFromMaterial } from "@/lib/ai-quiz.functions";
 import { loadQuestionBank } from "@/lib/question-bank";
+import { AddToBankButton } from "@/components/AddToBankButton";
 
 export const Route = createFileRoute("/_authenticated/ia")({
   staticData: { sitemap: false },
@@ -130,6 +131,7 @@ function IaPage() {
                   {ok ? "Mandou bem! Você acertou." : `Quase lá! A correta é a ${String.fromCharCode(65 + q.correct_index)}.`}
                 </p>
                 {!ok && <p className="text-muted-foreground">{q.explanation}</p>}
+                {isAdmin && mode === "bank" && subject && <div className="pt-2"><AddToBankButton subject={subject} topic={q.topic || ""} statement={q.statement} options={q.options} correctIndex={q.correct_index} explanation={q.explanation} /></div>}
               </div>
             )}
           </article>
