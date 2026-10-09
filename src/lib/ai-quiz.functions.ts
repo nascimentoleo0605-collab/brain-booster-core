@@ -9,7 +9,6 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ subject: z.string().min(1).max(120), topic: z.string().max(120).nullable(), count: z.union([z.literal(10), z.literal(20), z.literal(30)]).default(10) }).parse(d))
   .handler(async ({ data, context }) => {
     const lim = await import("./daily-limit.server");
-    await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
     if (data.topic) {
       // Prefer admin-provided study material so questions differ from the bank.
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -58,7 +57,6 @@ export const generateAiQuizFromMaterial = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ material: z.string().min(200, "O PDF tem pouco texto legível.").max(200_000), count: z.union([z.literal(10), z.literal(20), z.literal(30)]).default(10) }).parse(d))
   .handler(async ({ data, context }) => {
     const lim = await import("./daily-limit.server");
-    await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) throw new Error("A geração por IA não está configurada.");
     const { generateFromMaterial } = await import("./ai-quiz.server");
