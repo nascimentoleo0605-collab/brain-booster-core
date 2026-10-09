@@ -26,13 +26,18 @@ export function SubjectMaterials() {
   });
 
   async function upload() {
-    if (!subject.trim() || !file) { toast.error("Informe a matéria e escolha o PDF."); return; }
+    if (!subject.trim() || !topic.trim() || !file) { toast.error("Informe matéria, assunto e escolha o PDF."); return; }
+    if (file.size > 100 * 1024 * 1024) { toast.error("O PDF deve ter até 100 MB."); return; }
     setBusy(true);
     try {
       const { extractPdfText } = await import("@/components/PdfImport");
+      const pdfjs = await import("pdfjs-dist");
+      pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+      const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
+      if (doc.numPages > 100) throw new Error(`O PDF tem ${doc.numPages} páginas. O limite é 100.`);
       const content = (await extractPdfText(file)).trim();
       if (content.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-      const { error } = await supabase.from("subject_materials").insert({ subject: subject.trim(), topic: topic.trim(), title: file.name, content: content.slice(0, 200_000) });
+      const { error } = await supabase.from("subject_materials").insert({ subject: subject.trim(), topic: topic.trim(), title: file.name, content: content.slice(0, 600_000) });
       if (error) throw error;
       toast.success("Material salvo. O Meu Assistente vai usá-lo nesta matéria.");
       setFile(null); qc.invalidateQueries({ queryKey: ["subject-materials"] });
@@ -50,10 +55,10 @@ export function SubjectMaterials() {
       <DialogTrigger asChild><Button variant="outline" size="sm"><BookOpen /> Materiais do Assistente</Button></DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle>Materiais para o Meu Assistente</DialogTitle></DialogHeader>
-        <p className="text-sm text-muted-foreground">Envie PDFs por matéria (e assunto, se quiser). O Meu Assistente passa a criar questões a partir desses materiais, e não do banco. Use o nome da matéria exatamente como no banco.</p>
+        <p className="text-sm text-muted-foreground">Envie PDFs (até 100 páginas) para cada assunto. Quando o aluno escolher esse assunto, o Meu Assistente cria questões a partir do material, e não do banco. Use matéria e assunto exatamente como no banco.</p>
         <div className="grid gap-3">
           <div className="space-y-1.5"><Label>Matéria</Label><Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Ex.: MÓDULO 1" /></div>
-          <div className="space-y-1.5"><Label>Assunto (opcional)</Label><Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Vazio = vale para toda a matéria" /></div>
+          <div className="space-y-1.5"><Label>Assunto</Label><Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Ex.: ABORDAGEM A PESSOA A PÉ" /></div>
           <input type="file" accept="application/pdf" onChange={(e) => setFile(e.target.files?.[0] ?? null)} className="block w-full rounded-md border bg-background p-2 text-sm" />
           <Button onClick={upload} disabled={busy}>{busy && <LoaderCircle className="animate-spin" />} Salvar material</Button>
         </div>

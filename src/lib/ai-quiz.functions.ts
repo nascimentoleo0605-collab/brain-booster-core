@@ -10,15 +10,16 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const lim = await import("./daily-limit.server");
     await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
-    {
+    if (data.topic) {
       // Prefer admin-provided study material so questions differ from the bank.
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      let mq = supabaseAdmin.from("subject_materials").select("topic,content").eq("subject", data.subject).limit(20);
-      if (data.topic) mq = mq.in("topic", [data.topic, ""]);
+      const mq = supabaseAdmin.from("subject_materials").select("topic,content").eq("subject", data.subject).eq("topic", data.topic).limit(20);
       const { data: mats } = await mq;
       if (mats && mats.length) {
-        const sorted = [...mats].sort((a, b) => (b.topic === data.topic ? 1 : 0) - (a.topic === data.topic ? 1 : 0));
-        const material = sorted.map((m) => m.content).join("\n\n").slice(0, 25_000);
+        // Random 25k window keeps cost low while covering the whole PDF across runs.
+        const full = mats.map((m) => m.content).join("\n\n");
+        const start = full.length > 25_000 ? Math.floor(Math.random() * (full.length - 25_000)) : 0;
+        const material = full.slice(start, start + 25_000);
         if (material.length >= 200) {
           const apiKey = process.env["LOVABLE_API_KEY"];
           if (!apiKey) throw new Error("A geração por IA não está configurada.");
