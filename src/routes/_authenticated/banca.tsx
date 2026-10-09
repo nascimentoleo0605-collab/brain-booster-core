@@ -226,8 +226,8 @@ function Banca() {
     try {
       const res = await turn({ data: { subject, topic: topic === ALL ? null : topic, history: historyRef.current.slice(-12), event } });
       if (statusRef.current === "ended") return;
-      push({ role: "banca", text: res.text.replace(/\s*\|\|\|\s*/g, "\n\n") });
       const parts = res.text.split(/\s*\|\|\|\s*/).map((s) => s.trim()).filter(Boolean);
+      for (const part of parts.length ? parts : [res.text]) push({ role: "banca", text: part });
       playParts(parts.length ? parts : [res.text], () => {
         if (event === "end") setS("ended");
         else listen();
