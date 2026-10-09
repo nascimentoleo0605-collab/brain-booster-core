@@ -37,7 +37,7 @@ export function SubjectMaterials() {
       if (doc.numPages > 200) throw new Error(`O PDF tem ${doc.numPages} páginas. O limite é 200.`);
       const content = (await extractPdfText(file)).trim();
       if (content.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-      const { error } = await supabase.from("subject_materials").insert({ subject: subject.trim(), topic: topic.trim(), title: file.name, content: content.slice(0, 600_000) });
+      const { error } = await supabase.from("subject_materials").insert({ subject: subject.trim(), topic: topic.trim(), title: file.name, content: content.slice(0, 1_200_000) });
       if (error) throw error;
       toast.success("Material salvo. O Meu Assistente vai usá-lo nesta matéria.");
       setFile(null); qc.invalidateQueries({ queryKey: ["subject-materials"] });
