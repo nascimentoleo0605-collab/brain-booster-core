@@ -27,7 +27,8 @@ export const Route = createFileRoute("/_authenticated/banca")({
 
 const ALL = "__all__";
 const SESSION_SECONDS = 600;
-const IDLE_MS = 60_000;
+const IDLE_FIRST_MS = 150_000; // tempo de raciocínio antes da banca perguntar se o candidato ainda está aí
+const IDLE_SECOND_MS = 150_000; // prazo extra após o aviso antes de encerrar a sessão
 type Turn = { role: "banca" | "aluno"; text: string };
 type Status = "idle" | "thinking" | "speaking" | "listening" | "paused" | "ended";
 
@@ -108,11 +109,12 @@ function Banca() {
   function clearIdle() { if (idleTimer.current) clearTimeout(idleTimer.current); idleTimer.current = null; }
   function armIdle() {
     clearIdle();
+    const wait = idleStage.current === 0 ? IDLE_FIRST_MS : IDLE_SECOND_MS;
     idleTimer.current = setTimeout(() => {
       if (statusRef.current !== "listening") return;
       if (idleStage.current === 0) { idleStage.current = 1; void ask("idle"); }
       else void finish("Sessão encerrada por falta de resposta.");
-    }, IDLE_MS);
+    }, wait);
   }
 
   function stopListening() {
@@ -205,7 +207,7 @@ function Banca() {
         if (recRef.current !== rec || statusRef.current !== "listening") return;
         const said = (finalRef.current + live).trim();
         if (said) { stopListening(); setInterim(""); push({ role: "aluno", text: said }); void ask("answer"); }
-      }, 2200);
+      }, 3000);
     };
     rec.onend = () => {
       if (recRef.current === rec && statusRef.current === "listening" && !mutedRef.current) {
