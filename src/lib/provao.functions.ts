@@ -71,9 +71,6 @@ export const startProvao = createServerFn({ method: "POST" }).middleware([requir
   const existing = await current(context.userId);
   if (existing?.status === "draft") return visible(existing);
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { startOfDaySP } = await import("./daily-limit.server");
-  const { count } = await supabaseAdmin.from("provao_sessions").select("id", { count: "exact", head: true }).eq("user_id", context.userId).gte("created_at", startOfDaySP());
-  if ((count ?? 0) >= 1) throw new Error("Você já criou o seu Provão de hoje. Volte amanhã para um novo simulado.");
   const { data, error } = await supabaseAdmin.from("provao_sessions").insert({ user_id: context.userId }).select().single();
   if (error || !data) throw new Error("Não foi possível começar o Provão.");
   return visible(data as SessionRow);
