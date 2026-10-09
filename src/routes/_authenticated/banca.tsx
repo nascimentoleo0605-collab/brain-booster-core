@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Mic, MicOff, Pause, Play, PhoneOff, Gavel, LoaderCircle } from "lucide-react";
+import { Mic, MicOff, Pause, Play, PhoneOff, Gavel, LoaderCircle, SkipForward } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
