@@ -154,7 +154,7 @@ function Banca() {
       if (done) done();
       return;
     }
-    const text = queueRef.current[0];
+    const text = queueRef.current[0]!;
     speak(text, () => {
       queueRef.current = queueRef.current.slice(1);
       speakNextItem();
