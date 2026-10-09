@@ -29,18 +29,27 @@ export const getRanking = createServerFn({ method: "GET" })
       if (!rows || rows.length < PAGE) break;
     }
     // Longest consecutive correct-answer streak per user, matching the flame shown in Estudar.
-    const best = new Map<string, number>();
-    const current = new Map<string, number>();
-    for (let from = 0; ; from += PAGE) {
-      const { data: rows, error } = await supabaseAdmin.from("attempts").select("user_id, is_correct")
-        .order("user_id").order("created_at").order("id").range(from, from + PAGE - 1);
-      if (error) throw new Error("Não foi possível carregar o ranking.");
-      for (const row of rows ?? []) {
-        const next = row.is_correct ? (current.get(row.user_id) ?? 0) + 1 : 0;
-        current.set(row.user_id, next);
-        if (next > (best.get(row.user_id) ?? 0)) best.set(row.user_id, next);
+    // Bank and Meu Assistente answers both feed the streak, merged in time order.
+    const byUser = new Map<string, { t: string; ok: boolean }[]>();
+    for (const table of ["attempts", "assistant_attempts"] as const) {
+      for (let from = 0; ; from += PAGE) {
+        const { data: rows, error } = await supabaseAdmin.from(table).select("user_id, is_correct, created_at")
+          .order("id").range(from, from + PAGE - 1);
+        if (error) throw new Error("Não foi possível carregar o ranking.");
+        for (const row of rows ?? []) {
+          const list = byUser.get(row.user_id) ?? [];
+          list.push({ t: row.created_at, ok: row.is_correct });
+          byUser.set(row.user_id, list);
+        }
+        if (!rows || rows.length < PAGE) break;
       }
-      if (!rows || rows.length < PAGE) break;
+    }
+    const best = new Map<string, number>();
+    for (const [userId, list] of byUser) {
+      list.sort((x, y) => x.t.localeCompare(y.t));
+      let cur = 0, top = 0;
+      for (const r of list) { cur = r.ok ? cur + 1 : 0; if (cur > top) top = cur; }
+      best.set(userId, top);
     }
     let record: { name: string; streak: number } | null = null;
     for (const [userId, streak] of best) {

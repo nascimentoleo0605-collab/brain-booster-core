@@ -98,8 +98,18 @@ function Estudar() {
   });
   const latest = new Map<string, Attempt>();
   attempts.forEach((attempt) => { if (!latest.has(attempt.question_id)) latest.set(attempt.question_id, attempt); });
+  const { data: assistantAttempts = [] } = useQuery({
+    queryKey: ["assistant-streak", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("assistant_attempts").select("is_correct, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1000);
+      if (error) throw error;
+      return data;
+    },
+  });
+  // Streak spans Estudar and Meu Assistente answers, newest first.
+  const streakRows = [...attempts.map((a) => ({ t: a.created_at, ok: a.is_correct })), ...assistantAttempts.map((a) => ({ t: a.created_at, ok: a.is_correct }))].sort((x, y) => y.t.localeCompare(x.t));
   let streak = 0;
-  for (const attempt of attempts) { if (!attempt.is_correct) break; streak++; }
+  for (const r of streakRows) { if (!r.ok) break; streak++; }
 
   const subjects = useMemo(() => [...new Set(questions.map((q) => q.subject))].sort(), [questions]);
   const topics = useMemo(
