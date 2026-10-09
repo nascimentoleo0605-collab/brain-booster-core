@@ -62,6 +62,10 @@ function Banca() {
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idleStage = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const speechGen = useRef(0);
+  const queueRef = useRef<string[]>([]);
+  const doneRef = useRef<(() => void) | null>(null);
+  const [canSkip, setCanSkip] = useState(false);
 
   const setS = (s: Status) => { statusRef.current = s; setStatus(s); };
 
@@ -114,6 +118,7 @@ function Banca() {
   function push(t: Turn) { historyRef.current = [...historyRef.current, t]; setHistory(historyRef.current); }
 
   function speak(text: string, after: () => void) {
+    const gen = ++speechGen.current;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const v = pickFemaleVoice();
@@ -121,10 +126,39 @@ function Banca() {
     u.lang = v?.lang ?? "pt-BR";
     u.rate = 1.02;
     u.pitch = 1.1;
-    u.onend = after;
-    u.onerror = after;
+    u.onend = () => { if (speechGen.current === gen) after(); };
+    u.onerror = () => { if (speechGen.current === gen) after(); };
     setS("speaking");
     window.speechSynthesis.speak(u);
+  }
+
+  function playParts(parts: string[], done: () => void) {
+    queueRef.current = parts;
+    doneRef.current = done;
+    speakNextItem();
+  }
+
+  function speakNextItem() {
+    setCanSkip(statusRef.current !== "ended" && queueRef.current.length > 1);
+    if (queueRef.current.length === 0) {
+      const done = doneRef.current;
+      doneRef.current = null;
+      if (done) done();
+      return;
+    }
+    const text = queueRef.current[0];
+    speak(text, () => {
+      queueRef.current = queueRef.current.slice(1);
+      speakNextItem();
+    });
+  }
+
+  function skipSpeech() {
+    if (statusRef.current !== "speaking" || queueRef.current.length <= 1) return;
+    speechGen.current++;
+    window.speechSynthesis.cancel();
+    queueRef.current = queueRef.current.slice(1);
+    speakNextItem();
   }
 
   function listen() {
