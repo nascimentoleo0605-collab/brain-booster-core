@@ -35,11 +35,16 @@ type Status = "idle" | "thinking" | "speaking" | "listening" | "paused" | "ended
 type AnyRecognition = any;
 
 function pickFemaleVoice() {
-  const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().startsWith("pt"));
-  const female = /(francisca|luciana|maria|vit[oó]ria|camila|fernanda|thalita|female|feminina|google português)/i;
-  return voices.find((v) => v.lang === "pt-BR" && female.test(v.name))
-    ?? voices.find((v) => female.test(v.name))
-    ?? voices.find((v) => v.lang === "pt-BR")
+  const voices = window.speechSynthesis.getVoices().filter((v) => v.lang.toLowerCase().replace("_", "-").startsWith("pt"));
+  const male = /(daniel|ant[oô]nio|felipe|ricardo|duarte|joaquim|male\b|masculin)/i;
+  const female = /(francisca|thalita|brenda|giovanna|leila|leticia|manuela|yara|elza|luciana|joana|fernanda|camila|maria|vit[oó]ria|raquel|female|feminin|google portugu[eê]s)/i;
+  const natural = /(natural|neural|online|premium|enhanced|google)/i;
+  const br = (v: SpeechSynthesisVoice) => /pt-br/i.test(v.lang.replace("_", "-"));
+  const fem = voices.filter((v) => female.test(v.name) && !male.test(v.name));
+  return fem.find((v) => br(v) && natural.test(v.name))
+    ?? fem.find(br)
+    ?? fem[0]
+    ?? voices.find((v) => br(v) && !male.test(v.name))
     ?? voices[0];
 }
 
@@ -66,6 +71,8 @@ function Banca() {
   const queueRef = useRef<string[]>([]);
   const doneRef = useRef<(() => void) | null>(null);
   const [canSkip, setCanSkip] = useState(false);
+  const silenceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pausedFrom = useRef<"speaking" | "listening">("listening");
 
   const setS = (s: Status) => { statusRef.current = s; setStatus(s); };
 
@@ -109,6 +116,8 @@ function Banca() {
   }
 
   function stopListening() {
+    if (silenceRef.current) clearTimeout(silenceRef.current);
+    silenceRef.current = null;
     try { recRef.current?.abort(); } catch { /* noop */ }
     recRef.current = null;
   }
@@ -132,8 +141,8 @@ function Banca() {
     const v = pickFemaleVoice();
     if (v) u.voice = v;
     u.lang = v?.lang ?? "pt-BR";
-    u.rate = 1.02;
-    u.pitch = 1.1;
+    u.rate = 1;
+    u.pitch = 1;
     u.onend = () => { if (speechGen.current === gen) after(); };
     u.onerror = () => { if (speechGen.current === gen) after(); };
     setS("speaking");
@@ -180,7 +189,6 @@ function Banca() {
     rec.continuous = true;
     rec.interimResults = true;
     finalRef.current = "";
-    let silence: ReturnType<typeof setTimeout> | null = null;
     rec.onresult = (e: AnyRecognition) => {
       armIdle();
       idleStage.current = 0;
@@ -191,8 +199,10 @@ function Banca() {
         else live += r[0].transcript;
       }
       setInterim((finalRef.current + live).trim());
-      if (silence) clearTimeout(silence);
-      silence = setTimeout(() => {
+      if (recRef.current !== rec || statusRef.current !== "listening") return;
+      if (silenceRef.current) clearTimeout(silenceRef.current);
+      silenceRef.current = setTimeout(() => {
+        if (recRef.current !== rec || statusRef.current !== "listening") return;
         const said = (finalRef.current + live).trim();
         if (said) { stopListening(); setInterim(""); push({ role: "aluno", text: said }); void ask("answer"); }
       }, 2200);
@@ -215,7 +225,7 @@ function Banca() {
     setS("thinking");
     try {
       const res = await turn({ data: { subject, topic: topic === ALL ? null : topic, history: historyRef.current.slice(-12), event } });
-      if (statusRef.current === "ended" && event !== "end") return;
+      if (statusRef.current === "ended") return;
       push({ role: "banca", text: res.text.replace(/\s*\|\|\|\s*/g, "\n\n") });
       const parts = res.text.split(/\s*\|\|\|\s*/).map((s) => s.trim()).filter(Boolean);
       playParts(parts.length ? parts : [res.text], () => {
@@ -227,6 +237,12 @@ function Banca() {
       cleanup();
       setS("ended");
     }
+  }
+
+  function hangUp() {
+    cleanup();
+    setInterim("");
+    setS("ended");
   }
 
   async function finish(note?: string) {
@@ -251,8 +267,20 @@ function Banca() {
   }
 
   function togglePause() {
-    if (statusRef.current === "paused") { listen(); return; }
-    cleanup(); setInterim(""); setS("paused");
+    if (statusRef.current === "paused") {
+      if (pausedFrom.current === "speaking") { setS("speaking"); window.speechSynthesis.resume(); }
+      else listen();
+      return;
+    }
+    if (statusRef.current === "speaking") {
+      pausedFrom.current = "speaking";
+      window.speechSynthesis.pause();
+      setS("paused");
+      return;
+    }
+    if (statusRef.current !== "listening") return;
+    pausedFrom.current = "listening";
+    clearIdle(); stopListening(); finalRef.current = ""; setInterim(""); setS("paused");
   }
 
   const active = status !== "idle" && status !== "ended";
@@ -343,8 +371,8 @@ function Banca() {
                 <Button variant="outline" onClick={skipSpeech}><SkipForward /> Pular explicação</Button>
               )}
               <Button variant="outline" onClick={toggleMute} disabled={status === "paused"}>{muted ? <><MicOff /> Ativar microfone</> : <><Mic /> Mutar</>}</Button>
-              <Button variant="outline" onClick={togglePause} disabled={status === "thinking" || status === "speaking"}>{status === "paused" ? <><Play /> Continuar</> : <><Pause /> Pausar para pensar</>}</Button>
-              <Button variant="destructive" onClick={() => void finish()}><PhoneOff /> Encerrar</Button>
+              <Button variant="outline" onClick={togglePause} disabled={status === "thinking"}>{status === "paused" ? <><Play /> Continuar</> : <><Pause /> Pausar para pensar</>}</Button>
+              <Button variant="destructive" onClick={hangUp}><PhoneOff /> Encerrar</Button>
             </div>
           )}
           {status === "thinking" && <p className="mt-3 flex items-center justify-center gap-2 text-xs text-muted-foreground"><LoaderCircle className="h-3 w-3 animate-spin" /> A banca está formulando…</p>}
