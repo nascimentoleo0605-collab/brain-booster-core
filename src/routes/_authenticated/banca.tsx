@@ -207,7 +207,7 @@ function Banca() {
         if (recRef.current !== rec || statusRef.current !== "listening") return;
         const said = (finalRef.current + live).trim();
         if (said) { stopListening(); setInterim(""); push({ role: "aluno", text: said }); void ask("answer"); }
-      }, 2200);
+      }, 3000);
     };
     rec.onend = () => {
       if (recRef.current === rec && statusRef.current === "listening" && !mutedRef.current) {
