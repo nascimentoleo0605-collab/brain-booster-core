@@ -144,13 +144,6 @@ function IaPage() {
       {questions.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
           <p>Respondidas {done}/{questions.length} · Acertos <span className="font-semibold text-chart-2">{right}</span></p>
-          <span className={cn("flex items-center gap-2", streak >= 5 ? "streak-active rounded-md border border-chart-3/40 bg-chart-3/10 px-3 py-2 font-bold text-chart-3" : "")} aria-label={`Sequência de ${streak} acertos`}>
-            <span className={cn("relative grid h-7 w-7 shrink-0 place-items-center", streak >= 5 && "streak-fire")} aria-hidden="true">
-              {streak >= 5 && <><Flame className="streak-flame-back absolute size-6 text-chart-5" fill="currentColor" /><Flame className="streak-flame-front absolute size-5 text-chart-3" fill="currentColor" /></>}
-              {streak < 5 && <Flame className="size-5" />}
-            </span>
-            {streak >= 5 ? <span className="leading-tight">Sequência flamejante <strong className="ml-1 font-serif text-lg tabular-nums">{streak}</strong><span className="block text-xs font-medium opacity-80">acertos seguidos</span></span> : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}
-          </span>
         </div>
       )}
       {questions.map((q, i) => {
