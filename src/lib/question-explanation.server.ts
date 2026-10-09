@@ -25,6 +25,7 @@ export async function createQuestionExplanation(input: {
   try {
     const result = streamText({
       model: createAiModel(input.apiKey),
+      providerOptions: { lovable: { reasoningEffort: "none" } },
       system: "Você é um instrutor didático. Responda em português brasileiro, com precisão, sem saudações, sem mencionar IA e sem inventar fatos. Seja breve.",
       prompt: `Explique em no máximo 3 frases por que o gabarito desta questão é correto. Apresente somente o conteúdo necessário para o aluno entender o ponto principal.\n\nQuestão: ${input.statement}\n\nAlternativas:\n${input.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option}`).join("\n")}\n\nGabarito: ${String.fromCharCode(65 + input.correctIndex)}) ${correct}`,
     });

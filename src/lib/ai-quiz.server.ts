@@ -9,6 +9,7 @@ export async function generateFromMaterial(apiKey: string, material: string, cou
   try {
     const result = streamText({
       model: createAiModel(apiKey),
+      providerOptions: { lovable: { reasoningEffort: "none" } },
       output: Output.object({ schema }),
       system: "Você é um professor que cria questões inéditas de múltipla escolha em português brasileiro, usando SOMENTE o conteúdo do material fornecido. Cada questão tem exatamente quatro alternativas distintas e uma única correta, e uma explicação curta do gabarito. Entregue sempre o resultado estruturado completo.",
       prompt: `Crie exatamente ${count} questões sobre o material abaixo, cobrindo pontos diferentes. Em "topic" coloque o tema curto da questão. Distribua o gabarito entre A, B, C e D.\n\nMATERIAL:\n${material}`,

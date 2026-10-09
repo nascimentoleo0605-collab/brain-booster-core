@@ -1,7 +1,7 @@
 import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
 import { createAiRunIdFetch } from "./ai-run-id.server";
 
-export const AI_MODEL = "google/gemini-3.1-flash-lite";
+export const AI_MODEL = "openai/gpt-5.6-luna";
 
 export function createAiModel(apiKey: string) {
   const provider = createOpenAICompatible({
