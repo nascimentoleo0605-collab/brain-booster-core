@@ -113,7 +113,15 @@ function Banca() {
     recRef.current = null;
   }
 
-  function cleanup() { clearIdle(); stopListening(); window.speechSynthesis?.cancel(); }
+  function cleanup() {
+    clearIdle();
+    stopListening();
+    speechGen.current++;
+    queueRef.current = [];
+    doneRef.current = null;
+    setCanSkip(false);
+    window.speechSynthesis?.cancel();
+  }
 
   function push(t: Turn) { historyRef.current = [...historyRef.current, t]; setHistory(historyRef.current); }
 
@@ -208,8 +216,12 @@ function Banca() {
     try {
       const res = await turn({ data: { subject, topic: topic === ALL ? null : topic, history: historyRef.current.slice(-12), event } });
       if (statusRef.current === "ended" && event !== "end") return;
-      push({ role: "banca", text: res.text });
-      speak(res.text, () => { if (event === "end") setS("ended"); else listen(); });
+      push({ role: "banca", text: res.text.replace(/\s*\|\|\|\s*/g, "\n\n") });
+      const parts = res.text.split(/\s*\|\|\|\s*/).map((s) => s.trim()).filter(Boolean);
+      playParts(parts.length ? parts : [res.text], () => {
+        if (event === "end") setS("ended");
+        else listen();
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Estamos em atualizações no momento. Tente novamente em breve.");
       cleanup();
