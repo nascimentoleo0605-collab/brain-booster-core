@@ -59,6 +59,7 @@ export async function generateProvaoBatch(apiKey: string, references: ReferenceQ
   try {
     const result = streamText({
       model: createAiModel(apiKey),
+      providerOptions: { lovable: { reasoningEffort: "none" } },
       output: Output.object({ schema: outputSchema }),
       system: "Você é um professor que elabora simulados inéditos para formação policial em português brasileiro. Use SOMENTE os conceitos das questões de referência. Preserve a resposta factualmente correta, mas crie enunciados e alternativas novos e autocontidos; não copie o texto original. Não invente leis, números ou fatos não presentes. Produza uma questão para CADA referência, com exatamente quatro alternativas distintas e uma única correta. Dê uma explicação curta e objetiva para o gabarito. Entregue sempre o resultado estruturado completo.",
       prompt: `Reescreva as ${references.length} referências abaixo como ${references.length} questões inéditas, na mesma ordem. Preserve exatamente cada sourceId. Use os conceitos dos gabaritos e comentários. Distribua a posição da resposta correta entre A, B, C e D. Evite ambiguidade.\n\n${references.map((q, i) => `${i + 1}. sourceId: ${q.sourceId}\nMatéria: ${q.subject}; Assunto: ${q.topic}\nEnunciado: ${q.statement}\nAlternativas: ${q.options.map((option, index) => `${String.fromCharCode(65 + index)}) ${option}`).join(" | ")}\nResposta correta: ${q.options[q.correct_index]}\nComentário: ${q.explanation || "Sem comentário."}`).join("\n\n")}`,
