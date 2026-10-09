@@ -37,6 +37,8 @@ function IaPage() {
   const [file, setFile] = useState<File | null>(null);
   const [subject, setSubject] = useState("");
   const [topic, setTopic] = useState(ALL);
+  // Subject/topic filtered when the quiz was generated; admin "add to bank" uses these.
+  const [genTarget, setGenTarget] = useState<{ subject: string; topic: string | null } | null>(null);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [loading, setLoading] = useState(false);
@@ -59,8 +61,8 @@ function IaPage() {
         const { extractPdfText } = await import("@/components/PdfImport");
         const material = (await extractPdfText(file)).trim();
         if (material.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-        setQuestions(await generatePdf({ data: { material, count: 10 } }));
-      } else setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count: 10 } }));
+        setQuestions(await generatePdf({ data: { material, count: 10 } })); }
+      } else { setGenTarget({ subject, topic: topic === ALL ? null : topic }); setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count: 10 } }));
     }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível gerar as questões."); }
     finally { setLoading(false); }
@@ -132,7 +134,7 @@ function IaPage() {
                   {ok ? "Mandou bem! Você acertou." : `Quase lá! A correta é a ${String.fromCharCode(65 + q.correct_index)}.`}
                 </p>
                 {!ok && <p className="text-muted-foreground">{q.explanation}</p>}
-                {isAdmin && mode === "bank" && subject && <div className="pt-2"><AddToBankButton subject={subject} topic={q.topic || ""} statement={q.statement} options={q.options} correctIndex={q.correct_index} explanation={q.explanation} /></div>}
+                {isAdmin && mode === "bank" && genTarget && <div className="pt-2"><AddToBankButton subject={genTarget.subject} topic={genTarget.topic ?? (q.topic || "")} statement={q.statement} options={q.options} correctIndex={q.correct_index} explanation={q.explanation} /></div>}
               </div>
             )}
           </article>
