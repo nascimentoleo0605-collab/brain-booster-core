@@ -28,7 +28,8 @@ export const bancaTurn = createServerFn({ method: "POST" })
       start: "Cumprimente o candidato em uma frase curta e faça a primeira pergunta.",
       answer:
         "Responda em duas partes separadas pela sequência exata '|||' (três caracteres, sem espaços entre eles, nada antes nem depois). " +
-        "Primeira parte: avalie a última resposta do candidato em até 3 frases — se ele errou ou disse que não sabe, explique o ponto; se acertou, confirme e complemente em 1 frase. " +
+        "Primeira parte: avalie a última resposta do candidato em até 3 frases, com tolerância — interprete a intenção da fala, mesmo com palavras imprecisas ou erros de transcrição de voz; " +
+        "se a resposta estiver correta mas incompleta, considere-a acerto, confirme e apenas complemente o que faltou em 1 frase; se estiver errada ou ele disser que não sabe, explique o ponto com gentileza. " +
         "Segunda parte: faça a próxima pergunta, diferente das anteriores. Nunca escreva '|||' fora dessa separação.",
       idle: "O candidato ficou em silêncio. Pergunte de forma breve se ele ainda está aí e se quer que repita a pergunta.",
       end: "Encerre a sessão em até 3 frases: dê um balanço do desempenho do candidato, uma nota de 0 a 10 e qual ponto estudar mais.",
