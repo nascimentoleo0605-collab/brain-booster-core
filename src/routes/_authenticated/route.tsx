@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { checkSession } from "@/lib/session-lock.functions";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart3, BookOpen, BookMarked, ClipboardCheck, Sparkles, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid } from "lucide-react";
+import { ArrowLeft, BarChart3, BookOpen, BookMarked, ClipboardCheck, Sparkles, FileQuestion, GraduationCap, LogOut, Users, Trophy, LayoutGrid, Gavel } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated")({
   staticData: { sitemap: "exclude-subtree" },
@@ -80,6 +80,7 @@ function Layout() {
              <Link to="/ranking" aria-label="Ranking" title="Ranking" className={link} activeProps={active}><Trophy /> <span className="hidden md:inline">Ranking</span></Link>
               <Link to="/provao" aria-label="Provão" title="Provão" className={link} activeProps={active}><ClipboardCheck /> <span className="hidden md:inline">Provão</span></Link>
               <Link to="/ia" aria-label="Meu Assistente" title="Meu Assistente" className={link} activeProps={active}><Sparkles /> <span className="hidden md:inline">Meu Assistente</span></Link>
+              <Link to="/banca" aria-label="Banca Examinadora" title="Banca Examinadora" className={link} activeProps={active}><Gavel /> <span className="hidden md:inline">Banca</span></Link>
             {isAdmin && (
               <>
                  <Link to="/admin/questoes" aria-label="Questões" title="Questões" className={link} activeProps={active}><FileQuestion /> <span className="hidden md:inline">Questões</span></Link>
