@@ -61,8 +61,8 @@ function IaPage() {
         const { extractPdfText } = await import("@/components/PdfImport");
         const material = (await extractPdfText(file)).trim();
         if (material.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
-        setQuestions(await generatePdf({ data: { material, count: 10 } })); }
-      } else { setGenTarget({ subject, topic: topic === ALL ? null : topic }); setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count: 10 } }));
+        setQuestions(await generatePdf({ data: { material, count: 10 } }));
+      } else { setGenTarget({ subject, topic: topic === ALL ? null : topic }); setQuestions(await generate({ data: { subject, topic: topic === ALL ? null : topic, count: 10 } })); }
     }
     catch (e) { toast.error(e instanceof Error ? e.message : "Não foi possível gerar as questões."); }
     finally { setLoading(false); }
