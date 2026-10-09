@@ -136,7 +136,16 @@ function IaPage() {
       )}
       {loading && <p className="animate-pulse text-center text-sm text-muted-foreground">A IA está criando suas questões. Isso pode levar até um minuto...</p>}
       {questions.length > 0 && (
-        <p className="text-sm text-muted-foreground">Respondidas {done}/{questions.length} · Acertos <span className="font-semibold text-chart-2">{right}</span></p>
+        <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
+          <p>Respondidas {done}/{questions.length} · Acertos <span className="font-semibold text-chart-2">{right}</span></p>
+          <span className={cn("flex items-center gap-2", streak >= 5 ? "streak-active rounded-md border border-chart-3/40 bg-chart-3/10 px-3 py-2 font-bold text-chart-3" : "")} aria-label={`Sequência de ${streak} acertos`}>
+            <span className={cn("relative grid h-7 w-7 shrink-0 place-items-center", streak >= 5 && "streak-fire")} aria-hidden="true">
+              {streak >= 5 && <><Flame className="streak-flame-back absolute size-6 text-chart-5" fill="currentColor" /><Flame className="streak-flame-front absolute size-5 text-chart-3" fill="currentColor" /></>}
+              {streak < 5 && <Flame className="size-5" />}
+            </span>
+            {streak >= 5 ? <span className="leading-tight">Sequência flamejante <strong className="ml-1 font-serif text-lg tabular-nums">{streak}</strong><span className="block text-xs font-medium opacity-80">acertos seguidos</span></span> : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}
+          </span>
+        </div>
       )}
       {questions.map((q, i) => {
         const sel = answers[i];
@@ -149,7 +158,7 @@ function IaPage() {
             <div className="space-y-2">
               {q.options.map((o, oi) => {
                 const cls = !answered ? "hover:border-primary" : oi === q.correct_index ? "study-option-correct border-chart-2 bg-chart-2/10" : oi === sel ? "study-option-wrong border-destructive bg-destructive/10" : "opacity-60";
-                return <button key={oi} disabled={answered} onClick={() => { setAnswers((a) => ({ ...a, [i]: oi })); void supabase.from("assistant_attempts").insert({ is_correct: oi === q.correct_index, subject: mode === "bank" && subject ? subject : "Meu Assistente (PDF)", topic: q.topic || "" }); }} className={`flex w-full gap-2 rounded-md border p-3 text-left text-sm transition-all ${cls}`}><span className="font-semibold">{String.fromCharCode(65 + oi)})</span>{o}</button>;
+                return <button key={oi} disabled={answered} onClick={() => { setAnswers((a) => ({ ...a, [i]: oi })); void supabase.from("assistant_attempts").insert({ is_correct: oi === q.correct_index, subject: mode === "bank" && subject ? subject : "Meu Assistente (PDF)", topic: q.topic || "" }).then(() => { qc.invalidateQueries({ queryKey: ["assistant-streak", user.id] }); qc.invalidateQueries({ queryKey: ["ranking"] }); }); }} className={`flex w-full gap-2 rounded-md border p-3 text-left text-sm transition-all ${cls}`}><span className="font-semibold">{String.fromCharCode(65 + oi)})</span>{o}</button>;
               })}
             </div>
             {answered && (
