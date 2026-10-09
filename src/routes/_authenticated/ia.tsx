@@ -108,6 +108,13 @@ function IaPage() {
         <h1 className="font-serif text-2xl font-semibold">Meu Assistente</h1>
         <p className="text-sm text-muted-foreground">Escolha matéria e assunto ou envie um PDF: a IA cria 10 questões novas com base no banco.</p>
       </header>
+      <span className={cn("flex w-fit items-center gap-2 rounded-md border px-3 py-2 text-sm text-muted-foreground", streak >= 5 && "streak-active border-chart-3/40 bg-chart-3/10 font-bold text-chart-3")} aria-label={`Sequência de ${streak} acertos`}>
+        <span className={cn("relative grid h-7 w-7 shrink-0 place-items-center", streak >= 5 && "streak-fire")} aria-hidden="true">
+          {streak >= 5 && <><Flame className="streak-flame-back absolute size-6 text-chart-5" fill="currentColor" /><Flame className="streak-flame-front absolute size-5 text-chart-3" fill="currentColor" /></>}
+          {streak < 5 && <Flame className="size-5" />}
+        </span>
+        {streak >= 5 ? <span className="leading-tight">Sequência flamejante <strong className="ml-1 font-serif text-lg tabular-nums">{streak}</strong><span className="block text-xs font-medium opacity-80">acertos seguidos</span></span> : `${streak} ${streak === 1 ? "acerto seguido" : "acertos seguidos"}`}
+      </span>
       <div className="flex gap-2">
         <Button variant={mode === "bank" ? "default" : "outline"} size="sm" onClick={() => setMode("bank")}><Sparkles /> Matéria e assunto</Button>
         <Button variant={mode === "pdf" ? "default" : "outline"} size="sm" onClick={() => setMode("pdf")}><FileUp /> Enviar PDF</Button>
