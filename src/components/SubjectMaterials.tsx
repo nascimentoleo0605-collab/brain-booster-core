@@ -34,7 +34,7 @@ export function SubjectMaterials() {
       const pdfjs = await import("pdfjs-dist");
       pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
       const doc = await pdfjs.getDocument({ data: await file.arrayBuffer() }).promise;
-      if (doc.numPages > 100) throw new Error(`O PDF tem ${doc.numPages} páginas. O limite é 100.`);
+      if (doc.numPages > 200) throw new Error(`O PDF tem ${doc.numPages} páginas. O limite é 200.`);
       const content = (await extractPdfText(file)).trim();
       if (content.length < 200) throw new Error("Não consegui ler texto suficiente neste PDF.");
       const { error } = await supabase.from("subject_materials").insert({ subject: subject.trim(), topic: topic.trim(), title: file.name, content: content.slice(0, 600_000) });
@@ -55,7 +55,7 @@ export function SubjectMaterials() {
       <DialogTrigger asChild><Button variant="outline" size="sm"><BookOpen /> Materiais do Assistente</Button></DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader><DialogTitle>Materiais para o Meu Assistente</DialogTitle></DialogHeader>
-        <p className="text-sm text-muted-foreground">Envie PDFs (até 100 páginas) para cada assunto. Quando o aluno escolher esse assunto, o Meu Assistente cria questões a partir do material, e não do banco. Use matéria e assunto exatamente como no banco.</p>
+        <p className="text-sm text-muted-foreground">Envie PDFs (até 200 páginas) para cada assunto. Quando o aluno escolher esse assunto, o Meu Assistente cria questões a partir do material, e não do banco. Use matéria e assunto exatamente como no banco.</p>
         <div className="grid gap-3">
           <div className="space-y-1.5"><Label>Matéria</Label><Input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Ex.: MÓDULO 1" /></div>
           <div className="space-y-1.5"><Label>Assunto</Label><Input value={topic} onChange={(e) => setTopic(e.target.value)} placeholder="Ex.: ABORDAGEM A PESSOA A PÉ" /></div>
