@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { CheckCircle2, CircleX, FileDown, FileUp, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
+import { CheckCircle2, CircleX, FileDown, FileUp, Flame, LoaderCircle, RotateCcw, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -29,8 +31,11 @@ export const Route = createFileRoute("/_authenticated/ia")({
 type Q = Awaited<ReturnType<typeof generateAiQuiz>>[number];
 const ALL = "__all__";
 
+type StreakRow = { is_correct: boolean; created_at: string };
+
 function IaPage() {
-  const { isAdmin } = Route.useRouteContext();
+  const qc = useQueryClient();
+  const { user, isAdmin } = Route.useRouteContext();
   const generate = useServerFn(generateAiQuiz);
   const generatePdf = useServerFn(generateAiQuizFromMaterial);
   const [mode, setMode] = useState<"bank" | "pdf">("bank");
@@ -50,6 +55,26 @@ function IaPage() {
   const topics = useMemo(() => [...new Set(cls.filter((c) => c.subject === subject).map((c) => c.topic?.trim()).filter(Boolean))].sort(), [cls, subject]);
   const done = Object.keys(answers).length;
   const right = questions.filter((q, i) => answers[i] === q.correct_index).length;
+  // Same streak as Estudar: merges bank and assistant answers, newest first.
+  const { data: bankAttempts = [] } = useQuery({
+    queryKey: ["study-attempts", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("attempts").select("is_correct, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1000);
+      if (error) throw error;
+      return data as StreakRow[];
+    },
+  });
+  const { data: assistantAttempts = [] } = useQuery({
+    queryKey: ["assistant-streak", user.id],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("assistant_attempts").select("is_correct, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1000);
+      if (error) throw error;
+      return data;
+    },
+  });
+  const streakRows = [...bankAttempts, ...assistantAttempts].sort((x, y) => y.created_at.localeCompare(x.created_at));
+  let streak = 0;
+  for (const r of streakRows) { if (!r.is_correct) break; streak++; }
 
   async function run() {
     if (mode === "bank" && !subject) { toast.error("Escolha uma matéria."); return; }
