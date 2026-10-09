@@ -109,11 +109,12 @@ function Banca() {
   function clearIdle() { if (idleTimer.current) clearTimeout(idleTimer.current); idleTimer.current = null; }
   function armIdle() {
     clearIdle();
+    const wait = idleStage.current === 0 ? IDLE_FIRST_MS : IDLE_SECOND_MS;
     idleTimer.current = setTimeout(() => {
       if (statusRef.current !== "listening") return;
       if (idleStage.current === 0) { idleStage.current = 1; void ask("idle"); }
       else void finish("Sessão encerrada por falta de resposta.");
-    }, IDLE_MS);
+    }, wait);
   }
 
   function stopListening() {
