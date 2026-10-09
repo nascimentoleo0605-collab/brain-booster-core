@@ -39,7 +39,7 @@ export const bancaTurn = createServerFn({ method: "POST" })
       const result = streamText({
         model: createAiModel(apiKey),
         providerOptions: { lovable: { reasoningEffort: "none" } },
-        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. Nunca mencione que é uma IA. Quando a tarefa pedir duas partes, separe-as com '|||' exatamente como pedido. Tema: ${focus}.`,
+        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. O candidato responde por voz e a transcrição pode ter imperfeições: interprete sempre a intenção da fala, mesmo com palavras trocadas ou frases truncadas. Seja tolerante com respostas incompletas: se a ideia central estiver correta, trate como acerto e apenas complemente o que faltou, sem desaprovar. Nunca mencione que é uma IA. Quando a tarefa pedir duas partes, separe-as com '|||' exatamente como pedido. Tema: ${focus}.`,
         prompt: `${recent ? `Conversa recente:\n${recent}\n\n` : ""}Tarefa: ${instruction}`,
       });
       const text = (await result.text).trim();
