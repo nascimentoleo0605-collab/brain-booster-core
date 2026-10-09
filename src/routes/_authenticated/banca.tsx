@@ -27,7 +27,8 @@ export const Route = createFileRoute("/_authenticated/banca")({
 
 const ALL = "__all__";
 const SESSION_SECONDS = 600;
-const IDLE_MS = 60_000;
+const IDLE_FIRST_MS = 150_000; // tempo de raciocínio antes da banca perguntar se o candidato ainda está aí
+const IDLE_SECOND_MS = 150_000; // prazo extra após o aviso antes de encerrar a sessão
 type Turn = { role: "banca" | "aluno"; text: string };
 type Status = "idle" | "thinking" | "speaking" | "listening" | "paused" | "ended";
 
