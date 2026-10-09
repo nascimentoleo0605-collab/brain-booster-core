@@ -339,6 +339,9 @@ function Banca() {
 
           {active && (
             <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {canSkip && status === "speaking" && (
+                <Button variant="outline" onClick={skipSpeech}><SkipForward /> Pular explicação</Button>
+              )}
               <Button variant="outline" onClick={toggleMute} disabled={status === "paused"}>{muted ? <><MicOff /> Ativar microfone</> : <><Mic /> Mutar</>}</Button>
               <Button variant="outline" onClick={togglePause} disabled={status === "thinking" || status === "speaking"}>{status === "paused" ? <><Play /> Continuar</> : <><Pause /> Pausar para pensar</>}</Button>
               <Button variant="destructive" onClick={() => void finish()}><PhoneOff /> Encerrar</Button>
