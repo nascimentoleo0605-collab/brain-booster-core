@@ -28,7 +28,8 @@ export const bancaTurn = createServerFn({ method: "POST" })
       start: "Cumprimente o candidato em uma frase curta e faça a primeira pergunta.",
       answer:
         "Responda em duas partes separadas pela sequência exata '|||' (três caracteres, sem espaços entre eles, nada antes nem depois). " +
-        "Primeira parte: avalie a última resposta do candidato em até 3 frases — se ele errou ou disse que não sabe, explique o ponto; se acertou, confirme e complemente em 1 frase. " +
+        "Primeira parte: avalie a última resposta do candidato em até 3 frases, com tolerância — interprete a intenção da fala, mesmo com palavras imprecisas ou erros de transcrição de voz; " +
+        "se a resposta estiver correta mas incompleta, considere-a acerto, confirme e apenas complemente o que faltou em 1 frase; se estiver errada ou ele disser que não sabe, explique o ponto com gentileza. " +
         "Segunda parte: faça a próxima pergunta, diferente das anteriores. Nunca escreva '|||' fora dessa separação.",
       idle: "O candidato ficou em silêncio. Pergunte de forma breve se ele ainda está aí e se quer que repita a pergunta.",
       end: "Encerre a sessão em até 3 frases: dê um balanço do desempenho do candidato, uma nota de 0 a 10 e qual ponto estudar mais.",
@@ -38,7 +39,7 @@ export const bancaTurn = createServerFn({ method: "POST" })
       const result = streamText({
         model: createAiModel(apiKey),
         providerOptions: { lovable: { reasoningEffort: "none" } },
-        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. Nunca mencione que é uma IA. Quando a tarefa pedir duas partes, separe-as com '|||' exatamente como pedido. Tema: ${focus}.`,
+        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. O candidato responde por voz e a transcrição pode ter imperfeições: interprete sempre a intenção da fala, mesmo com palavras trocadas ou frases truncadas. Seja tolerante com respostas incompletas: se a ideia central estiver correta, trate como acerto e apenas complemente o que faltou, sem desaprovar. Nunca mencione que é uma IA. Quando a tarefa pedir duas partes, separe-as com '|||' exatamente como pedido. Tema: ${focus}.`,
         prompt: `${recent ? `Conversa recente:\n${recent}\n\n` : ""}Tarefa: ${instruction}`,
       });
       const text = (await result.text).trim();
