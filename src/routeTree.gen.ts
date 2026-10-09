@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as AuthenticatedBancaRouteImport } from './routes/_authenticated/banca'
 import { Route as AuthenticatedEstudarRouteImport } from './routes/_authenticated/estudar'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedMateriasRouteImport } from './routes/_authenticated/materias'
@@ -41,6 +42,11 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedBancaRoute = AuthenticatedBancaRouteImport.update({
+  id: '/banca',
+  path: '/banca',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEstudarRoute = AuthenticatedEstudarRouteImport.update({
   id: '/estudar',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/banca': typeof AuthenticatedBancaRoute
   '/estudar': typeof AuthenticatedEstudarRoute
   '/ia': typeof AuthenticatedIaRoute
   '/materias': typeof AuthenticatedMateriasRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/banca': typeof AuthenticatedBancaRoute
   '/estudar': typeof AuthenticatedEstudarRoute
   '/ia': typeof AuthenticatedIaRoute
   '/materias': typeof AuthenticatedMateriasRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/banca': typeof AuthenticatedBancaRoute
   '/_authenticated/estudar': typeof AuthenticatedEstudarRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/materias': typeof AuthenticatedMateriasRoute
@@ -140,6 +149,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/banca'
     | '/estudar'
     | '/ia'
     | '/materias'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/banca'
     | '/estudar'
     | '/ia'
     | '/materias'
@@ -169,6 +180,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/sitemap.xml'
+    | '/_authenticated/banca'
     | '/_authenticated/estudar'
     | '/_authenticated/ia'
     | '/_authenticated/materias'
@@ -216,6 +228,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/banca': {
+      id: '/_authenticated/banca'
+      path: '/banca'
+      fullPath: '/banca'
+      preLoaderRoute: typeof AuthenticatedBancaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/estudar': {
       id: '/_authenticated/estudar'
@@ -284,6 +303,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedBancaRoute: typeof AuthenticatedBancaRoute
   AuthenticatedEstudarRoute: typeof AuthenticatedEstudarRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedMateriasRoute: typeof AuthenticatedMateriasRoute
@@ -296,6 +316,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedBancaRoute: AuthenticatedBancaRoute,
   AuthenticatedEstudarRoute: AuthenticatedEstudarRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedMateriasRoute: AuthenticatedMateriasRoute,
