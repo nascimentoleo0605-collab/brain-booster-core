@@ -193,7 +193,7 @@ function Banca() {
   }
 
   function start() {
-    if (!subject) return toast.error("Escolha uma matéria.");
+    if (!subject) { toast.error("Escolha uma matéria."); return; }
     historyRef.current = []; setHistory([]); setRemaining(SESSION_SECONDS); idleStage.current = 0;
     setMuted(false); mutedRef.current = false;
     void ask("start");
