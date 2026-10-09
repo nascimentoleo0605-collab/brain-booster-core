@@ -14,6 +14,7 @@ import { QuestionImage } from "@/components/QuestionImage";
 import { ImageQuestionImport } from "@/components/ImageQuestionImport";
 import { PastedQuestionImport } from "@/components/PastedQuestionImport";
 import { loadQuestionBank, QUESTION_BANK_LIMIT } from "@/lib/question-bank";
+import { SubjectMaterials } from "@/components/SubjectMaterials";
 
 export const Route = createFileRoute("/_authenticated/admin/questoes")({
   staticData: { sitemap: false },
@@ -99,6 +100,7 @@ function Questoes() {
         <ImageQuestionImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
         <CsvImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
         <PdfImport onDone={() => qc.invalidateQueries({ queryKey: ["questions"] })} />
+        <SubjectMaterials />
       </div>
     </div>
     <div className="grid gap-8 lg:grid-cols-[1fr_1.1fr]">

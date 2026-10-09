@@ -10,6 +10,25 @@ export const generateAiQuiz = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const lim = await import("./daily-limit.server");
     await lim.ensureLimit(context.userId, "assistant", data.count, 50, LIMIT_MSG);
+    {
+      // Prefer admin-provided study material so questions differ from the bank.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      let mq = supabaseAdmin.from("subject_materials").select("topic,content").eq("subject", data.subject).limit(20);
+      if (data.topic) mq = mq.in("topic", [data.topic, ""]);
+      const { data: mats } = await mq;
+      if (mats && mats.length) {
+        const sorted = [...mats].sort((a, b) => (b.topic === data.topic ? 1 : 0) - (a.topic === data.topic ? 1 : 0));
+        const material = sorted.map((m) => m.content).join("\n\n").slice(0, 25_000);
+        if (material.length >= 200) {
+          const apiKey = process.env["LOVABLE_API_KEY"];
+          if (!apiKey) throw new Error("A geração por IA não está configurada.");
+          const { generateFromMaterial } = await import("./ai-quiz.server");
+          const qs = await generateFromMaterial(apiKey, material, data.count);
+          await lim.recordUsage(context.userId, "assistant", qs.length);
+          return qs.map((x, i) => ({ id: `${i}`, ...x, subject: data.subject, topic: x.topic || data.topic || "" }));
+        }
+      }
+    }
     let q = context.supabase.from("questions").select("id,subject,topic,statement,options,correct_index,explanation").eq("subject", data.subject).limit(300);
     if (data.topic) q = q.eq("topic", data.topic);
     const { data: rows, error } = await q;

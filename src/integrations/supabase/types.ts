@@ -238,6 +238,33 @@ export type Database = {
         }
         Relationships: []
       }
+      subject_materials: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          subject: string
+          title: string
+          topic: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          subject: string
+          title?: string
+          topic?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          subject?: string
+          title?: string
+          topic?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
