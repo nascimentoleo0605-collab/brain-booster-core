@@ -35,8 +35,8 @@ export const generateQuestionsFromMaterial = createServerFn({ method: "POST" })
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3.1-flash-lite",
-        temperature: 0.35,
+        model: "openai/gpt-5.6-luna",
+        reasoning_effort: "none",
         messages: [
           {
             role: "system",
