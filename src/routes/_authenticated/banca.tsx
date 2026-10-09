@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { Mic, MicOff, Pause, Play, PhoneOff, Gavel, LoaderCircle } from "lucide-react";
+import { Mic, MicOff, Pause, Play, PhoneOff, Gavel, LoaderCircle, SkipForward } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,10 @@ function Banca() {
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idleStage = useRef(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const speechGen = useRef(0);
+  const queueRef = useRef<string[]>([]);
+  const doneRef = useRef<(() => void) | null>(null);
+  const [canSkip, setCanSkip] = useState(false);
 
   const setS = (s: Status) => { statusRef.current = s; setStatus(s); };
 
@@ -109,11 +113,20 @@ function Banca() {
     recRef.current = null;
   }
 
-  function cleanup() { clearIdle(); stopListening(); window.speechSynthesis?.cancel(); }
+  function cleanup() {
+    clearIdle();
+    stopListening();
+    speechGen.current++;
+    queueRef.current = [];
+    doneRef.current = null;
+    setCanSkip(false);
+    window.speechSynthesis?.cancel();
+  }
 
   function push(t: Turn) { historyRef.current = [...historyRef.current, t]; setHistory(historyRef.current); }
 
   function speak(text: string, after: () => void) {
+    const gen = ++speechGen.current;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     const v = pickFemaleVoice();
@@ -121,10 +134,39 @@ function Banca() {
     u.lang = v?.lang ?? "pt-BR";
     u.rate = 1.02;
     u.pitch = 1.1;
-    u.onend = after;
-    u.onerror = after;
+    u.onend = () => { if (speechGen.current === gen) after(); };
+    u.onerror = () => { if (speechGen.current === gen) after(); };
     setS("speaking");
     window.speechSynthesis.speak(u);
+  }
+
+  function playParts(parts: string[], done: () => void) {
+    queueRef.current = parts;
+    doneRef.current = done;
+    speakNextItem();
+  }
+
+  function speakNextItem() {
+    setCanSkip(statusRef.current !== "ended" && queueRef.current.length > 1);
+    if (queueRef.current.length === 0) {
+      const done = doneRef.current;
+      doneRef.current = null;
+      if (done) done();
+      return;
+    }
+    const text = queueRef.current[0]!;
+    speak(text, () => {
+      queueRef.current = queueRef.current.slice(1);
+      speakNextItem();
+    });
+  }
+
+  function skipSpeech() {
+    if (statusRef.current !== "speaking" || queueRef.current.length <= 1) return;
+    speechGen.current++;
+    window.speechSynthesis.cancel();
+    queueRef.current = queueRef.current.slice(1);
+    speakNextItem();
   }
 
   function listen() {
@@ -174,8 +216,12 @@ function Banca() {
     try {
       const res = await turn({ data: { subject, topic: topic === ALL ? null : topic, history: historyRef.current.slice(-12), event } });
       if (statusRef.current === "ended" && event !== "end") return;
-      push({ role: "banca", text: res.text });
-      speak(res.text, () => { if (event === "end") setS("ended"); else listen(); });
+      push({ role: "banca", text: res.text.replace(/\s*\|\|\|\s*/g, "\n\n") });
+      const parts = res.text.split(/\s*\|\|\|\s*/).map((s) => s.trim()).filter(Boolean);
+      playParts(parts.length ? parts : [res.text], () => {
+        if (event === "end") setS("ended");
+        else listen();
+      });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Estamos em atualizações no momento. Tente novamente em breve.");
       cleanup();
@@ -293,6 +339,9 @@ function Banca() {
 
           {active && (
             <div className="mt-5 flex flex-wrap justify-center gap-2">
+              {canSkip && status === "speaking" && (
+                <Button variant="outline" onClick={skipSpeech}><SkipForward /> Pular explicação</Button>
+              )}
               <Button variant="outline" onClick={toggleMute} disabled={status === "paused"}>{muted ? <><MicOff /> Ativar microfone</> : <><Mic /> Mutar</>}</Button>
               <Button variant="outline" onClick={togglePause} disabled={status === "thinking" || status === "speaking"}>{status === "paused" ? <><Play /> Continuar</> : <><Pause /> Pausar para pensar</>}</Button>
               <Button variant="destructive" onClick={() => void finish()}><PhoneOff /> Encerrar</Button>

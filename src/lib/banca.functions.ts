@@ -26,7 +26,10 @@ export const bancaTurn = createServerFn({ method: "POST" })
     const focus = data.topic ? `${data.subject} — assunto: ${data.topic}` : `${data.subject} (assuntos variados)`;
     const instruction = {
       start: "Cumprimente o candidato em uma frase curta e faça a primeira pergunta.",
-      answer: "Avalie a última resposta do candidato. Se ele disse que não sabe ou errou, explique o ponto em até 3 frases. Se acertou, confirme e complemente em 1 frase. Depois faça a próxima pergunta, diferente das anteriores.",
+      answer:
+        "Responda em duas partes separadas pela sequência exata '|||' (três caracteres, sem espaços entre eles, nada antes nem depois). " +
+        "Primeira parte: avalie a última resposta do candidato em até 3 frases — se ele errou ou disse que não sabe, explique o ponto; se acertou, confirme e complemente em 1 frase. " +
+        "Segunda parte: faça a próxima pergunta, diferente das anteriores. Nunca escreva '|||' fora dessa separação.",
       idle: "O candidato ficou em silêncio. Pergunte de forma breve se ele ainda está aí e se quer que repita a pergunta.",
       end: "Encerre a sessão em até 3 frases: dê um balanço do desempenho do candidato, uma nota de 0 a 10 e qual ponto estudar mais.",
     }[data.event];
@@ -35,7 +38,7 @@ export const bancaTurn = createServerFn({ method: "POST" })
       const result = streamText({
         model: createAiModel(apiKey),
         providerOptions: { lovable: { reasoningEffort: "none" } },
-        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. Nunca mencione que é uma IA. Tema: ${focus}.`,
+        system: `Você é uma examinadora de banca oral para concurso de Curso de Formação de Praças da Polícia Militar. Fale em português do Brasil, em tom formal, cordial e didático. Seu texto será lido em voz alta: não use listas, markdown, emojis ou siglas soltas. Faça uma pergunta por vez, objetiva, que possa ser respondida falando. Nunca mencione que é uma IA. Quando a tarefa pedir duas partes, separe-as com '|||' exatamente como pedido. Tema: ${focus}.`,
         prompt: `${recent ? `Conversa recente:\n${recent}\n\n` : ""}Tarefa: ${instruction}`,
       });
       const text = (await result.text).trim();
